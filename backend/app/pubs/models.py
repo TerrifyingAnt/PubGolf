@@ -22,3 +22,13 @@ class Pub(Base):
     email = Column(String, nullable=False)
     phone_number = Column(String, unique=True, nullable=False)
     # company = ForeignKey
+
+
+class Alcohol(Base):
+    """Модель алкоголя."""
+
+    __tablename__ = 'alcohol'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(Text, nullable=False)
+    cost = Column(Integer, nullable=False)
