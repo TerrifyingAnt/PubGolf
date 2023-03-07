@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">PubGolf</string>
+    <string name="retryLaterError">
+        Произошла ошибка. Проверьте подключение к интернету или повторите попытку позже.
+    </string>
+    <string name="loginAndPasswordError">Неверный логин или пароль</string>
+    <string name="emailExistsError">Такая почта уже зарегистрирована</string>
+    <string name="welcome">Добро пожаловать!</string>
+</resources>
