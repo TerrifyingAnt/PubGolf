@@ -22,8 +22,8 @@ if config.config_file_name is not None:
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
+from app.database import Base
 from app.users import models
-from app.main import Base
 
 target_metadata = Base.metadata
 
