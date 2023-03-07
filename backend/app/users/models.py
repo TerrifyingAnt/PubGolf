@@ -16,7 +16,7 @@ class Company(Base):
     __tablename__ = 'companies'
 
     id = Column(Integer, primary_key=True, index=True)
-    login = Column(String, unique=True, index=True, nullable=False)
+    username = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     address = Column(Text, nullable=False)
     photo = Column(String)
@@ -30,7 +30,7 @@ class Staff(Base):
     __tablename__ = 'staff'
 
     id = Column(Integer, primary_key=True, index=True)
-    login = Column(String, unique=True, index=True, nullable=False)
+    username = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
 
@@ -54,6 +54,5 @@ class Player(Base):
     friends = relationship(
         'Player', secondary=friends,
         primaryjoin=id == friends.c.player_id,
-        secondaryjoin=id == friends.c.friend_id,
-        backref='friends'
+        secondaryjoin=id == friends.c.friend_id
     )
