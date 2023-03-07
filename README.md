@@ -14,6 +14,6 @@
  <p><i>Тестировал на самодельном сервере на спринге с эндпоинтами: </i> 
   <ul>
     <li><tt>/api/register</tt></li>
-    <li><tt>api/enter</tt></li>
+    <li><tt>/api/enter</tt></li>
   </ul>
  </p>
