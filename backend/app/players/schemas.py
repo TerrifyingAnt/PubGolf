@@ -11,42 +11,6 @@ def validate_re_password(value: str, values: dict) -> str:
     return value
 
 
-class CompanyBase(BaseModel):
-    username: constr(
-        strip_whitespace=True,
-        max_length=120,
-        regex=username_regex
-    )
-    password: constr(regex=password_regex)
-    address: str
-    photo: str | None = None
-    about: str | None = None
-    email: EmailStr
-    phone_number: constr(strip_whitespace=True)
-
-    @validator('phone_number')
-    def validate_phone_number(cls, value):
-        if len(value) != 12 or value[0] != '+':
-            raise ValueError('Неверный формат номера телефона.')
-        return value
-
-
-class CompanyCreate(CompanyBase):
-    re_password: str
-
-    _validate_re_password = validator(
-        're_password', allow_reuse=True)(validate_re_password)
-
-
-class Company(CompanyBase):
-    id: int
-    is_active: bool
-    # pubs: list[Pub] = []
-
-    class Config:
-        orm_mode = True
-
-
 class StaffBase(BaseModel):
     username: constr(
         strip_whitespace=True,
@@ -93,12 +57,3 @@ class Player(PlayerBase):
 
     class Config:
         orm_mode = True
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    email: EmailStr | None = None
