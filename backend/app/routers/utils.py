@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
-from app.players import crud
+from app.crud import crud_players
 
 SECRET_KEY = '85d2725c3b40ceb35c5571e6ca947b900b0588032a9061fba4014c6f23619686'
 ALGORITHM = 'HS256'
@@ -22,7 +22,7 @@ def get_password_hash(password):
 
 
 def authenticate_user(db: Session, email: EmailStr, password: str):
-    user = crud.get_player(db, email)
+    user = crud_players.get_player(db, email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):

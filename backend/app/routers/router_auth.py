@@ -8,9 +8,10 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from starlette import status
 
-from app import players
-from app.auth import schemas, utils
-from app.auth.utils import SECRET_KEY, ALGORITHM
+from app.crud import crud_players
+from app.schemas import schemas_auth, schemas_players, schemas_companies
+from app.routers.utils import SECRET_KEY, ALGORITHM, get_password_hash, \
+    authenticate_user, create_access_token
 from app.database import get_db
 
 router = APIRouter()
@@ -24,30 +25,30 @@ class UserTypes(Enum):
     company: str = 'company'
 
 
-@router.post('/auth/players/signup', response_model=players.schemas.Player)
+@router.post('/auth/players/signup', response_model=schemas_players.Player)
 def sign_up_players(
-    player: players.schemas.PlayerCreate,
+    player: schemas_players.PlayerCreate,
     db: Session = Depends(get_db),
 ):
-    if players.crud.get_player(db, player.email):
+    if crud_players.get_player(db, player.email):
         raise HTTPException(
             status_code=400,
             detail='Пользователь с такой почтой уже существует.'
         )
 
-    return players.crud.create_player(
+    return crud_players.create_player(
         db,
         player,
-        utils.get_password_hash(player.password)
+        get_password_hash(player.password)
     )
 
 
-@router.post('/auth/players/signin', response_model=schemas.Token)
+@router.post('/auth/players/signin', response_model=schemas_auth.Token)
 def sign_in_players(
-    player: players.schemas.PlayerLogin,
+    player: schemas_players.PlayerLogin,
     db: Session = Depends(get_db),
 ):
-    player = utils.authenticate_user(db, player.email, player.password)
+    player = authenticate_user(db, player.email, player.password)
     if not player:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -55,7 +56,7 @@ def sign_in_players(
             headers={'WWW-Authenticate': 'Bearer'},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = utils.create_access_token(
+    access_token = create_access_token(
         data={'sub': player.email}, expires_delta=access_token_expires
     )
     return {'access_token': access_token, 'token_type': 'bearer'}
@@ -72,11 +73,11 @@ def get_current_user(db: Session, token: str, user_type: UserTypes):
         email: EmailStr = payload.get('sub')
         if email is None:
             raise credentials_exception
-        token_data = schemas.TokenData(email=email)
+        token_data = schemas_auth.TokenData(email=email)
     except JWTError:
         raise credentials_exception
     if user_type == UserTypes.player:
-        user = players.crud.get_player(db, email=token_data.email)
+        user = crud_players.get_player(db, email=token_data.email)
     # elif user_type == UserTypes.company:
     #     user = companies.crud.get_company(db, email=token_data.email)
     if user is None:
@@ -84,7 +85,7 @@ def get_current_user(db: Session, token: str, user_type: UserTypes):
     return user
 
 
-@router.get('/players/me', response_model=players.schemas.Player)
+@router.get('/players/me', response_model=schemas_players.Player)
 def get_current_player(
     db: Session = Depends(get_db),
     token: str = Depends(oauth2_scheme)
@@ -92,9 +93,9 @@ def get_current_player(
     return get_current_user(db, token, UserTypes.player)
 
 
-# @router.get('/companies/me', response_model=companies.schemas.Company)
-# def get_current_player(
-#     db: Session = Depends(get_db),
-#     token: str = Depends(oauth2_scheme)
-# ):
-#     return get_current_user(db, token, UserTypes.company)
+@router.get('/companies/me', response_model=schemas_companies.Company)
+def get_current_player(
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme)
+):
+    return get_current_user(db, token, UserTypes.company)
