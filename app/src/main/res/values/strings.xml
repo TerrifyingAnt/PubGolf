@@ -6,4 +6,5 @@
     <string name="loginAndPasswordError">Неверный логин или пароль</string>
     <string name="emailExistsError">Такая почта уже зарегистрирована</string>
     <string name="welcome">Добро пожаловать!</string>
+    <string name="error">Ошибка</string>
 </resources>

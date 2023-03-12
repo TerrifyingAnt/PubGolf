@@ -31,7 +31,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.schedulers.Schedulers
-import jg.com.pubgolf.classes.User
+import jg.com.pubgolf.classes.Player
 import jg.com.pubgolf.classes.UserResponse
 import jg.com.pubgolf.debugutils.Constants.LOGIN_KEY
 import jg.com.pubgolf.debugutils.Constants.NAME_KEY
@@ -39,7 +39,7 @@ import jg.com.pubgolf.debugutils.Constants.PASSWORD_KEY
 import jg.com.pubgolf.debugutils.Constants.PREFS_NAME
 import jg.com.pubgolf.debugutils.Constants.apiService
 import jg.com.pubgolf.debugutils.Constants.disposable
-import jg.com.pubgolf.debugutils.Constants.enteredUser
+import jg.com.pubgolf.debugutils.Constants.enteredPlayer
 import jg.com.pubgolf.debugutils.Debug
 import jg.com.pubgolf.ui.theme.*
 import retrofit2.HttpException
@@ -60,9 +60,9 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background,
                 ) {
                     val context: Context = LocalContext.current
-                    val user: User = loadCredentials(context)
-                    if(user.password != "" && user.email != "" && user.name != ""){
-                        enterUser(user.name, user.email, user.password, context)
+                    val player: Player = loadCredentials(context)
+                    if(player.password != "" && player.email != "" && player.name != ""){
+                        enterUser(player.name, player.email, player.password, context)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ result ->
                                 println("8============D " + result.name)
@@ -98,13 +98,13 @@ fun StartScreen() {
     // ЛОГИКА ОТСЛЕЖИВАНИЯ ВКЛЮЧЕНИЯ/ВЫКЛЮЧЕНИЯ ДИАЛОГОВ
     if (showDialogRegister) {
         RegisterDialog(onRegister = { user ->
-            enteredUser = user
+            enteredPlayer = user
         }, onDismiss = {showDialogRegister = false}, LocalContext.current)
     }
     else {
         if (showDialogEnter) {
             EnterDialog(onEnter = { user ->
-                enteredUser = user
+                enteredPlayer = user
             }, onDismiss = {showDialogEnter = false}, LocalContext.current)
         }
     }
@@ -229,7 +229,7 @@ fun StartScreen() {
 //ДИАЛОГ РЕГИСТРАЦИИ
 @Composable
 fun RegisterDialog(
-    onRegister: (User) -> Unit,
+    onRegister: (Player) -> Unit,
     onDismiss: () -> Unit,
     context: Context
 ) {
@@ -349,7 +349,7 @@ fun RegisterDialog(
                     enabled = registerEnabled,
                     onClick = {
                         authUser(::registerUser,
-                            User(name, email, password),
+                            Player(name, email, password),
                             context,
                             onSuccess = { user ->
                                 Toast.makeText(context, context.getString(R.string.welcome),
@@ -389,7 +389,7 @@ fun RegisterDialog(
 // ДИАЛОГ ВХОДА
 @Composable
 fun EnterDialog(
-    onEnter: (User) -> Unit,
+    onEnter: (Player) -> Unit,
     onDismiss: () -> Unit,
     context: Context
 ) {
@@ -446,7 +446,7 @@ fun EnterDialog(
                     enabled = registerEnabled,
                     onClick = {
                         authUser(::enterUser,
-                            User("", email, password),
+                            Player("", email, password),
                             context,
                             onSuccess = { user ->
                                 Toast.makeText(context, context.getString(R.string.welcome),
@@ -490,8 +490,8 @@ fun EnterDialog(
 // не нравится повторяющаяся часть кода с обзерверами что здесь, что в enterUser
 fun registerUser(name: String, email: String, password: String, context: Context): Single<UserResponse> {
 
-    val user = User(name, email, password)
-    return apiService.registerUser(user)
+    val player = Player(name, email, password)
+    return apiService.registerUser(player)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .onErrorResumeNext { throwable: Throwable ->
@@ -503,8 +503,8 @@ fun registerUser(name: String, email: String, password: String, context: Context
 
 // вход в приложение
 fun enterUser(name: String, email: String, password: String, context: Context): Single<UserResponse> {
-    val user = User(name ,email, password)
-    return apiService.enterUser(user)
+    val player = Player(name ,email, password)
+    return apiService.loginUser(player)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .onErrorResumeNext { throwable: Throwable ->
@@ -529,12 +529,12 @@ fun saveCredentials(name: String, email:String, password:String, context: Contex
 
 
 // выгрузка данных из sharedPreferences
-fun loadCredentials(context: Context): User {
+fun loadCredentials(context: Context): Player {
     val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     val email = prefs.getString(LOGIN_KEY, "") ?: ""
     val password = prefs.getString(PASSWORD_KEY, "") ?: ""
     val name = prefs.getString(NAME_KEY, "") ?: ""
-    return User(name, email, password)
+    return Player(name, email, password)
 }
 
 
@@ -560,21 +560,21 @@ fun showToastErrors(context: Context, errorString: String, throwable: Throwable)
  * авторизация пользователей
  * вот это есть смысл расписать
  * @param authFunc - функция enterUser или registerUser
- * @param user - пользователь, данные которого передаются в authFunc
+ * @param player - пользователь, данные которого передаются в authFunc
  *
  */
 fun authUser(
     authFunc: (String, String, String, Context) -> Single<UserResponse>,
-    user: User,
+    player: Player,
     context: Context,
     onSuccess: (UserResponse) -> Unit,
     onError: (Throwable) -> Unit
 ): Disposable {
 
-    authFunc(user.name, user.email, user.password, context)
+    authFunc(player.name, player.email, player.password, context)
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe({ result ->
-            saveCredentials(result.name, user.email, user.password, context)
+            saveCredentials(result.name, player.email, player.password, context)
             onSuccess(result)
         }, { error ->
             onError(error)
