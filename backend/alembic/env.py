@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
 from app.database import Base
-from app.models import models_players, models_companies
+from app.models import models_players, models_companies, models_staff
 
 target_metadata = Base.metadata
 

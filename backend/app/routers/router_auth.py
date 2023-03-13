@@ -1,19 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from app.crud import crud_players, crud_companies
-from app.schemas import schemas_auth, schemas_players, schemas_companies
+from app.crud import crud_players, crud_companies, crud_staff
+from app.schemas import schemas_auth, schemas_players, schemas_companies, \
+    schemas_staff
 from app.routers.utils import (
     get_current_user,
-    sign_in_user
+    sign_in_user, oauth2_scheme
 )
 from app.database import get_db
 from app.schemas.schemas_auth import UserTypes
 
 router = APIRouter()
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 
 @router.post('/auth/players/signup', response_model=schemas_players.Player)
@@ -45,6 +43,22 @@ def create_company(
     return crud_companies.create_company(db, company)
 
 
+@router.post(
+    '/auth/staff/signup',
+    response_model=schemas_staff.Staff
+)
+def create_staff(
+    staff: schemas_staff.StaffCreate,
+    db: Session = Depends(get_db),
+):
+    if crud_staff.get_staff(db, staff.username):
+        raise HTTPException(
+            status_code=400,
+            detail='Пользователь с таким логином уже существует.'
+        )
+    return crud_staff.create_staff(db, staff)
+
+
 @router.post('/auth/players/signin', response_model=schemas_auth.Token)
 def sign_in_player(
     player_data: schemas_players.PlayerLogin,
@@ -61,17 +75,9 @@ def sign_in_company(
     return sign_in_user(db, company_data)
 
 
-@router.get('/players/me', response_model=schemas_players.Player)
-def get_current_player(
+@router.post('/auth/staff/signin', response_model=schemas_auth.Token)
+def sign_in_staff(
+    staff_data: schemas_staff.StaffLogin,
     db: Session = Depends(get_db),
-    token: str = Depends(oauth2_scheme)
 ):
-    return get_current_user(db, token, UserTypes.player)
-
-
-@router.get('/companies/me', response_model=schemas_companies.Company)
-def get_current_company(
-    db: Session = Depends(get_db),
-    token: str = Depends(oauth2_scheme)
-):
-    return get_current_user(db, token, UserTypes.company)
+    return sign_in_user(db, staff_data)

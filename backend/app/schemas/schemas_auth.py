@@ -6,6 +6,7 @@ from pydantic import BaseModel, EmailStr
 class UserTypes(Enum):
     player: str = 'player'
     company: str = 'company'
+    staff: str = 'staff'
 
 
 class Token(BaseModel):
