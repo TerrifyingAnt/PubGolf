@@ -34,7 +34,6 @@ class Player(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-    photo = Column(String)
     is_active = Column(Boolean, default=True)
 
     friends = relationship(

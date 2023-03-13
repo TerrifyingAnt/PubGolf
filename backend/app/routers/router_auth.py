@@ -1,32 +1,23 @@
-from datetime import timedelta
-from enum import Enum
-
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
-from pydantic import EmailStr
 from sqlalchemy.orm import Session
-from starlette import status
 
-from app.crud import crud_players
+from app.crud import crud_players, crud_companies
 from app.schemas import schemas_auth, schemas_players, schemas_companies
-from app.routers.utils import SECRET_KEY, ALGORITHM, get_password_hash, \
-    authenticate_user, create_access_token
+from app.routers.utils import (
+    get_current_user,
+    sign_in_user
+)
 from app.database import get_db
+from app.schemas.schemas_auth import UserTypes
 
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-
-class UserTypes(Enum):
-    player: str = 'player'
-    company: str = 'company'
 
 
 @router.post('/auth/players/signup', response_model=schemas_players.Player)
-def sign_up_players(
+def create_player(
     player: schemas_players.PlayerCreate,
     db: Session = Depends(get_db),
 ):
@@ -35,54 +26,39 @@ def sign_up_players(
             status_code=400,
             detail='Пользователь с такой почтой уже существует.'
         )
+    return crud_players.create_player(db, player)
 
-    return crud_players.create_player(
-        db,
-        player,
-        get_password_hash(player.password)
-    )
+
+@router.post(
+    '/auth/companies/signup',
+    response_model=schemas_companies.Company
+)
+def create_company(
+    company: schemas_companies.CompanyCreate,
+    db: Session = Depends(get_db),
+):
+    if crud_companies.get_company(db, company.username):
+        raise HTTPException(
+            status_code=400,
+            detail='Пользователь с таким логином уже существует.'
+        )
+    return crud_companies.create_company(db, company)
 
 
 @router.post('/auth/players/signin', response_model=schemas_auth.Token)
-def sign_in_players(
-    player: schemas_players.PlayerLogin,
+def sign_in_player(
+    player_data: schemas_players.PlayerLogin,
     db: Session = Depends(get_db),
 ):
-    player = authenticate_user(db, player.email, player.password)
-    if not player:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Неверная почта или пароль.',
-            headers={'WWW-Authenticate': 'Bearer'},
-        )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={'sub': player.email}, expires_delta=access_token_expires
-    )
-    return {'access_token': access_token, 'token_type': 'bearer'}
+    return sign_in_user(db, player_data)
 
 
-def get_current_user(db: Session, token: str, user_type: UserTypes):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail='Токен недействителен.',
-        headers={'WWW-Authenticate': 'Bearer'},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: EmailStr = payload.get('sub')
-        if email is None:
-            raise credentials_exception
-        token_data = schemas_auth.TokenData(email=email)
-    except JWTError:
-        raise credentials_exception
-    if user_type == UserTypes.player:
-        user = crud_players.get_player(db, email=token_data.email)
-    # elif user_type == UserTypes.company:
-    #     user = companies.crud.get_company(db, email=token_data.email)
-    if user is None:
-        raise credentials_exception
-    return user
+@router.post('/auth/companies/signin', response_model=schemas_auth.Token)
+def sign_in_company(
+    company_data: schemas_companies.CompanyLogin,
+    db: Session = Depends(get_db),
+):
+    return sign_in_user(db, company_data)
 
 
 @router.get('/players/me', response_model=schemas_players.Player)
@@ -94,7 +70,7 @@ def get_current_player(
 
 
 @router.get('/companies/me', response_model=schemas_companies.Company)
-def get_current_player(
+def get_current_company(
     db: Session = Depends(get_db),
     token: str = Depends(oauth2_scheme)
 ):
