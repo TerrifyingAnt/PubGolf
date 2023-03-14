@@ -1,15 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from starlette import status
 
 from app.crud import crud_players, crud_companies, crud_staff
-from app.schemas import schemas_auth, schemas_players, schemas_companies, \
+from app.schemas import (
+    schemas_auth,
+    schemas_players,
+    schemas_companies,
     schemas_staff
-from app.routers.utils import (
-    get_current_user,
-    sign_in_user, oauth2_scheme
 )
+from app.routers.utils import sign_in_user
 from app.database import get_db
-from app.schemas.schemas_auth import UserTypes
 
 router = APIRouter()
 
@@ -21,7 +22,7 @@ def create_player(
 ):
     if crud_players.get_player(db, player.email):
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail='Пользователь с такой почтой уже существует.'
         )
     return crud_players.create_player(db, player)
@@ -37,7 +38,7 @@ def create_company(
 ):
     if crud_companies.get_company(db, company.username):
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail='Пользователь с таким логином уже существует.'
         )
     return crud_companies.create_company(db, company)
@@ -53,7 +54,7 @@ def create_staff(
 ):
     if crud_staff.get_staff(db, staff.username):
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail='Пользователь с таким логином уже существует.'
         )
     return crud_staff.create_staff(db, staff)
