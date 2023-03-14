@@ -21,3 +21,16 @@ def create_player(db: Session, player: schemas_players.PlayerCreate):
     db.commit()
     db.refresh(db_player)
     return db_player
+
+
+def update_player(
+    db: Session,
+    email: models_players.Player.email,
+    new_email: EmailStr
+):
+    db_player = db.query(models_players.Player).filter(
+        models_players.Player.email == email
+    ).first()
+    db_player.email = new_email
+    db.commit()
+    return db_player
