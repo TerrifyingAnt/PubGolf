@@ -59,7 +59,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def get_current_user(db: Session, token: str, user_type: UserTypes):
+def get_token_data(token: str, user_type: UserTypes):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Токен недействителен.',
@@ -79,6 +79,11 @@ def get_current_user(db: Session, token: str, user_type: UserTypes):
             token_data = schemas_auth.TokenData(username=username)
     except JWTError:
         raise credentials_exception
+    return token_data
+
+
+def get_current_user(db: Session, token: str, user_type: UserTypes):
+    token_data = get_token_data(token, user_type)
     user = None
     if user_type == UserTypes.player:
         user = crud_players.get_player(db, email=token_data.email)
@@ -87,7 +92,11 @@ def get_current_user(db: Session, token: str, user_type: UserTypes):
     elif user_type == UserTypes.staff:
         user = crud_staff.get_staff(db, username=token_data.username)
     if user is None:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Пользователь не существует.',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
     return user
 
 
