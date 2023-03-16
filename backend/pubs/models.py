@@ -32,7 +32,15 @@ class Pub(models.Model):
 
 
 class Alcohol(models.Model):
-    pass
+    """Модель алкоголя."""
+
+    name = models.CharField(
+        max_length=50,
+        verbose_name="Название",
+    )
+    cost = models.PositiveIntegerField(
+        verbose_name="Цена",
+    )
 
 
 class Menu(models.Model):
