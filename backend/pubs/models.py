@@ -31,6 +31,24 @@ class Pub(models.Model):
         return self.address
 
 
+class Menu(models.Model):
+    """Модель меню."""
+
+    pub = models.ForeignKey(
+        Pub,
+        on_delete=models.CASCADE,
+        verbose_name='Паб',
+        related_name="menus"
+    )
+
+    class Meta:
+        verbose_name = "Меню"
+        verbose_name_plural = "Меню"
+
+    def __str__(self) -> str:
+        return self.pub.address
+
+
 class Alcohol(models.Model):
     """Модель алкоголя."""
 
@@ -41,7 +59,16 @@ class Alcohol(models.Model):
     cost = models.PositiveIntegerField(
         verbose_name="Цена",
     )
+    menu = models.ForeignKey(
+        Menu,
+        on_delete=models.CASCADE,
+        verbose_name='Меню',
+        related_name="alcohols"
+    )
 
+    class Meta:
+        verbose_name = "Алкоголь"
+        verbose_name_plural = "Алкоголь"
 
-class Menu(models.Model):
-    pass
+    def __str__(self) -> str:
+        return self.name

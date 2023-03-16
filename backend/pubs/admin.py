@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Pub, Alcohol
+from .models import Pub, Alcohol, Menu
 
 
 @admin.register(Pub)
@@ -11,5 +11,7 @@ class PubAdmin(admin.ModelAdmin):
 
 @admin.register(Alcohol)
 class AlcoholAdmin(admin.ModelAdmin):
-    list_display = ('name', 'cost')
-    search_fields = ('name')
+    list_display = ('name', 'cost', 'menu')
+
+
+admin.site.register(Menu)
