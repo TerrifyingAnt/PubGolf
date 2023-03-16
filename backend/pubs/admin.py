@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Pub
+
+
+@admin.register(Pub)
+class PubAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'address')
