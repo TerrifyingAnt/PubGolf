@@ -155,9 +155,3 @@ cython_debug/
 
 # PyCharm
 .idea/
-
-# Alembic
-versions/
-
-# db
-pub_golf.db
