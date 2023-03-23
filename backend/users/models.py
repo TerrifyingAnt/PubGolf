@@ -2,22 +2,13 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
-from users.validators import validate_username
-
 ROLE_CHOICES = (
-    ('user', 'Аутентифицированный пользователь'),
-    ('company', 'Компания'),
-    ('admin', 'Администратор'),
+    ('player', 'Аутентифицированный пользователь'),
+    ('company', 'Компания')
 )
 
 
 class CustomUser(AbstractUser):
-    username = models.CharField(
-        max_length=150,
-        unique=True,
-        validators=[validate_username],
-        verbose_name='Логин',
-    )
     email = models.EmailField(
         unique=True,
         max_length=254,
@@ -27,11 +18,12 @@ class CustomUser(AbstractUser):
         max_length=30,
         choices=ROLE_CHOICES,
         blank=True,
-        default='user',
+        default='player',
         verbose_name='Роль',
     )
     bio = models.TextField(
         blank=True,
+        null=True,
         verbose_name='Доп. информация',
     )
     registered_office = models.CharField(
@@ -49,6 +41,8 @@ class CustomUser(AbstractUser):
         verbose_name='Телефонный номер'
     )
     photo = models.ImageField(
+        blank=True,
+        null=True,
         verbose_name='Фото'
     )
 
@@ -57,9 +51,27 @@ class CustomUser(AbstractUser):
         verbose_name_plural = 'Пользователи'
 
     @property
-    def is_admin(self):
-        return self.is_superuser or self.role == 'admin'
-
-    @property
     def is_company(self):
         return self.role == 'company'
+
+
+class Friendship(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='user_friends',
+        verbose_name='Пользователь'
+    )
+    friend = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='friend_friends',
+        verbose_name='Друг'
+    )
+
+    class Meta:
+        verbose_name = 'Друзья'
+        verbose_name_plural = 'Друзья'
+
+    def __str__(self):
+        return f'{self.user} --- {self.friend}'

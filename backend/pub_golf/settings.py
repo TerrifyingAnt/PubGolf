@@ -25,6 +25,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'users.apps.UsersConfig',
     'api.apps.ApiConfig'
 ]
@@ -125,6 +128,7 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     'HIDE_USERS': False,
+    'SET_USERNAME_RETYPE': True,
     'PERMISSIONS': {
         'user_list': ['api.permissions.ReadOnlyPermission'],
     },
