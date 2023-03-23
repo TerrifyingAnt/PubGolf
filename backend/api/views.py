@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
-from djoser.serializers import SetUsernameSerializer
 from djoser.views import UserViewSet
-from rest_framework import viewsets, mixins, status, permissions
+from rest_framework import viewsets, mixins, status, permissions, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -25,7 +24,7 @@ class CustomUserViewSet(UserViewSet):
         elif self.action == 'set_password':
             return CustomPasswordSerializer
         elif self.action == 'set_username':
-            return SetUsernameSerializer
+            return serializers.SetUsernameSerializer
         elif self.action == 'set_email':
             return SetEmailSerializer
         elif self.action == 'me':
@@ -35,6 +34,8 @@ class CustomUserViewSet(UserViewSet):
     def get_permissions(self):
         if self.action == 'retrieve':
             self.permission_classes = [permissions.IsAuthenticated]
+        elif self.action == 'set_email':
+            self.permission_classes = [permissions.CurrentUserOrAdmin]
         return super().get_permissions()
 
     def get_queryset(self):
