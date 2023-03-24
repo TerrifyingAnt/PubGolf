@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from api.pagination import GamesAndFriendsPagination
+from api.permissions import PlayerPermission
 from api.serializers import (
     FriendsSerializer,
     CustomUserCreateSerializer,
@@ -56,6 +57,7 @@ class CustomUserViewSet(UserViewSet):
 
 class FriendsBaseViewSet(viewsets.GenericViewSet):
     serializer_class = FriendsSerializer
+    permission_classes = (PlayerPermission,)
 
     def get_queryset(self):
         return self.request.user.user_friends.all()

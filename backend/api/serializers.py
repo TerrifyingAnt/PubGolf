@@ -122,6 +122,10 @@ class FriendsSerializer(serializers.ModelSerializer):
         if user == friend:
             raise serializers.ValidationError(
                 'Нельзя добавить в друзья самого себя!')
+        if friend.is_company:
+            raise serializers.ValidationError(
+                'Нельзя добавить в друзья аккаунт комапнии!'
+            )
         if Friendship.objects.filter(user=user, friend=friend).exists():
             raise serializers.ValidationError(
                 'Пользователь уже есть у Вас в друзьях!')
