@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'users.apps.UsersConfig',
-    'api.apps.ApiConfig'
+    'api.apps.ApiConfig',
+    'games.apps.GamesConfig',
 ]
 
 MIDDLEWARE = [
