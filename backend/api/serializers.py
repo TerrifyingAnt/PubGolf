@@ -99,15 +99,11 @@ class SetEmailSerializer(
 
 class FriendsSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(
-        source='author.id',
+        source='friend.id',
         read_only=True,
     )
     username = serializers.CharField(
-        source='author.username',
-        read_only=True
-    )
-    email = serializers.CharField(
-        source='author.email',
+        source='friend.username',
         read_only=True
     )
     is_friend = serializers.SerializerMethodField()
