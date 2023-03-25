@@ -3,11 +3,14 @@ from django.db import models
 from users.models import CustomUser
 
 DIFFICULTY_LEVELS = (
-    ('', 'Аутентифицированный пользователь'),
-    ('company', 'Компания')
+    ('underbeerman', 'Подпивасник'),
+    ('', ''),
+    ('', '')
 )
 BUDGET_LEVELS = (
-    ()
+    ('', ''),
+    ('', ''),
+    ('', '')
 )
 GAME_STATUSES = (
     ('created', 'Создана комната'),
@@ -68,3 +71,14 @@ class GameUser(models.Model):
 
     def __str__(self):
         return f'{self.user} --- {self.game}'
+
+
+class Stage(models.Model):
+    game = models.ForeignKey(
+        Game,
+        on_delete=models.CASCADE
+    )
+    # pub = models.ForeignKey(
+    #     Pub,
+    #     on_delete=models.CASCADE
+    # )
