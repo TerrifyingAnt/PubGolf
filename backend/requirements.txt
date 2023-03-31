@@ -1,5 +1,10 @@
 Django==4.1.7
+<<<<<<< HEAD
 djangorestframework==3.14.0
 Pillow==9.4.0
 djoser==2.1.0
 python-dotenv==1.0.0
+=======
+python-dotenv==1.0.0
+djangorestframework==3.14.0
+>>>>>>> origin/backend-pubs
