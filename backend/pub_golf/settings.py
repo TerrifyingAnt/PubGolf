@@ -25,15 +25,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
     'users.apps.UsersConfig',
     'api.apps.ApiConfig'
-=======
     'pubs.apps.PubsConfig',
->>>>>>> origin/backend-pubs
 ]
 
 MIDDLEWARE = [
@@ -77,11 +74,9 @@ DATABASES = {
 }
 
 
-<<<<<<< HEAD
+
 AUTH_USER_MODEL = "users.CustomUser"
 
-=======
->>>>>>> origin/backend-pubs
 # Password validation
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -102,11 +97,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 
-<<<<<<< HEAD
 LANGUAGE_CODE = 'ru-ru'
-=======
-LANGUAGE_CODE = 'en-us'
->>>>>>> origin/backend-pubs
 
 TIME_ZONE = 'UTC'
 
@@ -122,7 +113,6 @@ STATIC_URL = 'static/'
 # Default primary key field type
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-<<<<<<< HEAD
 
 # DRF
 
@@ -144,5 +134,3 @@ DJOSER = {
         'user_list': ['api.permissions.ReadOnlyPermission'],
     },
 }
-=======
->>>>>>> origin/backend-pubs
