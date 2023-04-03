@@ -5,7 +5,7 @@ from .models import Pub, Alcohol, Menu
 
 @admin.register(Pub)
 class PubAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'address', 'phone')
+    list_display = ('pk', 'address', 'phone', 'company')
     search_fields = ('address', 'phone')
 
 

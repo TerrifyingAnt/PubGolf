@@ -1,6 +1,7 @@
 from django.db import models
 
 from pubs.validators import validate_phone
+from users.models import CustomUser
 
 
 class Pub(models.Model):
@@ -21,14 +22,19 @@ class Pub(models.Model):
         verbose_name="Почта"
     )
 
-    # company = models.ForeignKey()
+    company = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        verbose_name="Компания",
+        related_name="pubs"
+    )
 
     class Meta:
         verbose_name = "Паб"
         verbose_name_plural = "Пабы"
 
     def __str__(self):
-        return self.address
+        return self.company
 
 
 class Menu(models.Model):
@@ -46,7 +52,7 @@ class Menu(models.Model):
         verbose_name_plural = "Меню"
 
     def __str__(self) -> str:
-        return self.pub.address
+        return self.pub.company
 
 
 class Alcohol(models.Model):
