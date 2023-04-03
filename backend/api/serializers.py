@@ -7,6 +7,7 @@ from djoser.serializers import (
 from rest_framework import serializers
 
 from users.models import CustomUser, Friendship
+from pubs.models import Pub, Menu, Alcohol
 
 
 class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
@@ -136,3 +137,49 @@ class FriendsSerializer(serializers.ModelSerializer):
             user=self.context['request'].user,
             friend=obj.friend
         ).exists()
+
+
+class PubSerializer(serializers.ModelSerializer):
+    company = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        model = Pub
+        fields = (
+            'id',
+            'company',
+            'address',
+            'phone',
+            'email'
+        )
+
+
+class MenuSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Menu
+        fields = (
+            'id',
+            'pub'
+        )
+
+
+class AlcoholSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Alcohol
+        fields = (
+            'id',
+            'name',
+            'cost',
+            'menu'
+        )
+
+    def validate_cost(self, cost):
+        if cost < 0:
+            raise serializers.ValidationError(
+                'Цена не может быть меньше 0.'
+            )
+        return cost
