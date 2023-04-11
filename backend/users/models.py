@@ -68,10 +68,15 @@ class Friendship(models.Model):
         related_name='friend_friends',
         verbose_name='Друг'
     )
+    accepted = models.BooleanField(
+        blank=True,
+        default=False,
+        verbose_name='Статус подтверждения'
+    )
 
     class Meta:
         verbose_name = 'Друзья'
         verbose_name_plural = 'Друзья'
 
     def __str__(self):
-        return f'{self.user} --- {self.friend}'
+        return f'{self.user} --- {self.friend}: {self.accepted}'
