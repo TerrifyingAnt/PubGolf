@@ -5,16 +5,18 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from api.pagination import GamesAndFriendsPagination
-from api.permissions import PlayerPermission
+from api.permissions import PlayerPermission, IsOwnerOrReadOnly
 from api.serializers import (
     FriendsSerializer,
     CustomUserCreateSerializer,
     CustomPasswordSerializer,
     CustomUserSerializer,
     CustomUserMeSerializer,
-    SetEmailSerializer
+    SetEmailSerializer,
+    PubSerializer
 )
 from users.models import CustomUser, Friendship
+from pubs.models import Pub, Alcohol, Menu
 
 
 class CustomUserViewSet(UserViewSet):
@@ -93,3 +95,13 @@ class FriendsCreateDestroyViewSet(
             friend_id=user_id
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PubViewSet(viewsets.ModelViewSet):
+
+    queryset = Pub.objects.all()
+    serializer_class = PubSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def perform_create(self, serializer):
+        serializer.save(company=self.request.user)

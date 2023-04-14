@@ -34,7 +34,7 @@ class Pub(models.Model):
         verbose_name_plural = "Пабы"
 
     def __str__(self):
-        return self.company
+        return self.company.username
 
 
 class Menu(models.Model):
@@ -51,8 +51,8 @@ class Menu(models.Model):
         verbose_name = "Меню"
         verbose_name_plural = "Меню"
 
-    def __str__(self) -> str:
-        return self.pub.company
+    def __str__(self):
+        return self.pub.company.username
 
 
 class Alcohol(models.Model):

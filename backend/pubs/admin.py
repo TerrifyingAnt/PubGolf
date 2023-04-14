@@ -14,4 +14,6 @@ class AlcoholAdmin(admin.ModelAdmin):
     list_display = ('name', 'cost', 'menu')
 
 
-admin.site.register(Menu)
+@admin.register(Menu)
+class MenuAdmin(admin.ModelAdmin):
+    list_display = ('pub',)
