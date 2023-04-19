@@ -5,7 +5,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from api.pagination import GamesAndFriendsPagination
-from api.permissions import PlayerPermission, IsOwnerOrReadOnly, IsPubOwnerOrReadOnly
+from api.permissions import (
+    PlayerPermission,
+    IsOwnerOrReadOnly,
+    IsPubOwnerOrReadOnly
+)
 from api.serializers import (
     FriendsSerializer,
     CustomUserCreateSerializer,
@@ -116,6 +120,7 @@ class MenuViewSet(
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet
 ):
+
     serializer_class = MenuSerializer
     permission_classes = (IsPubOwnerOrReadOnly, )
 
