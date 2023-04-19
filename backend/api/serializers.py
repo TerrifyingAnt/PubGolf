@@ -173,6 +173,16 @@ class MenuSerializer(serializers.ModelSerializer):
             'cost'
         )
 
+    def validate_name(self, name):
+        user = CustomUser.objects.get(id=self.context['request'].user.id)
+        pub = Pub.objects.get(company=user)
+        if Menu.objects.filter(pub=pub, name=name).exists():
+            raise serializers.ValidationError(
+                'Такой алкоголь уже есть в меню.'
+            )
+        return name
+
+
     def validate_cost(self, cost):
         if cost < 0:
             raise serializers.ValidationError(
