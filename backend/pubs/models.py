@@ -44,7 +44,17 @@ class Menu(models.Model):
         Pub,
         on_delete=models.CASCADE,
         verbose_name='Паб',
-        related_name="menus"
+        related_name="menus",
+    )
+    name = models.CharField(
+        max_length=50,
+        verbose_name="Название",
+    )
+    alcohol = models.PositiveIntegerField(
+        verbose_name="Процент спирта",
+    )
+    cost = models.PositiveIntegerField(
+        verbose_name="Цена",
     )
 
     class Meta:
@@ -53,28 +63,3 @@ class Menu(models.Model):
 
     def __str__(self):
         return self.pub.company.username
-
-
-class Alcohol(models.Model):
-    """Модель алкоголя."""
-
-    name = models.CharField(
-        max_length=50,
-        verbose_name="Название",
-    )
-    cost = models.PositiveIntegerField(
-        verbose_name="Цена",
-    )
-    menu = models.ForeignKey(
-        Menu,
-        on_delete=models.CASCADE,
-        verbose_name='Меню',
-        related_name="alcohols"
-    )
-
-    class Meta:
-        verbose_name = "Алкоголь"
-        verbose_name_plural = "Алкоголь"
-
-    def __str__(self) -> str:
-        return self.name

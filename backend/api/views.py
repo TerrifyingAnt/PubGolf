@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from api.pagination import GamesAndFriendsPagination
-from api.permissions import PlayerPermission, IsOwnerOrReadOnly
+from api.permissions import PlayerPermission, IsOwnerOrReadOnly, IsPubOwnerOrReadOnly
 from api.serializers import (
     FriendsSerializer,
     CustomUserCreateSerializer,
@@ -13,10 +13,11 @@ from api.serializers import (
     CustomUserSerializer,
     CustomUserMeSerializer,
     SetEmailSerializer,
-    PubSerializer
+    PubSerializer,
+    MenuSerializer,
 )
 from users.models import CustomUser, Friendship
-from pubs.models import Pub, Alcohol, Menu
+from pubs.models import Pub, Menu
 
 
 class CustomUserViewSet(UserViewSet):
@@ -105,3 +106,29 @@ class PubViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(company=self.request.user)
+
+
+class MenuViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
+    serializer_class = MenuSerializer
+    permission_classes = (IsPubOwnerOrReadOnly, )
+
+    def get_queryset(self):
+        pub_id = self.kwargs['pub_id']
+        return Menu.objects.filter(pub=pub_id)
+
+    def retrieve(self, request, pk=None, pub_id=None):
+        menu = self.get_object()
+        serializer = self.get_serializer(menu)
+        return Response(serializer.data)
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        pub = Pub.objects.get(company=user)
+        serializer.save(pub=pub)

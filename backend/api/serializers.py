@@ -7,7 +7,7 @@ from djoser.serializers import (
 from rest_framework import serializers
 
 from users.models import CustomUser, Friendship
-from pubs.models import Pub, Menu, Alcohol
+from pubs.models import Pub, Menu
 
 
 class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
@@ -158,23 +158,19 @@ class PubSerializer(serializers.ModelSerializer):
 
 class MenuSerializer(serializers.ModelSerializer):
 
+    pub = serializers.IntegerField(
+        source='pub.id',
+        read_only=True
+    )
+
     class Meta:
         model = Menu
         fields = (
             'id',
-            'pub'
-        )
-
-
-class AlcoholSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Alcohol
-        fields = (
-            'id',
+            'pub',
             'name',
-            'cost',
-            'menu'
+            'alcohol',
+            'cost'
         )
 
     def validate_cost(self, cost):
@@ -183,3 +179,10 @@ class AlcoholSerializer(serializers.ModelSerializer):
                 'Цена не может быть меньше 0.'
             )
         return cost
+
+    def validate_alcohol(self, alcohol):
+        if alcohol > 100:
+            raise serializers.ValidationError(
+                'Процент содержания спирта не может быть больше 100%.'
+            )
+        return alcohol
