@@ -149,15 +149,13 @@ class PubSerializer(serializers.ModelSerializer):
         model = Pub
         fields = (
             'id',
-            'company',
-            'address',
-            'phone',
-            'email'
+            'name',
+            'pub_address',
+            'company'
         )
 
 
 class MenuSerializer(serializers.ModelSerializer):
-
     pub = serializers.IntegerField(
         source='pub.id',
         read_only=True
@@ -167,21 +165,20 @@ class MenuSerializer(serializers.ModelSerializer):
         model = Menu
         fields = (
             'id',
-            'pub',
-            'name',
-            'alcohol',
-            'cost'
+            'alcohol_name',
+            'alcohol_percent',
+            'cost',
+            'pub'
         )
 
-    def validate_name(self, name):
+    def validate_name(self, alcohol_name):
         user = CustomUser.objects.get(id=self.context['request'].user.id)
         pub = Pub.objects.get(company=user)
-        if Menu.objects.filter(pub=pub, name=name).exists():
+        if Menu.objects.filter(pub=pub, alcohol_name=alcohol_name).exists():
             raise serializers.ValidationError(
                 'Такой алкоголь уже есть в меню.'
             )
-        return name
-
+        return alcohol_name
 
     def validate_cost(self, cost):
         if cost < 0:
@@ -190,9 +187,9 @@ class MenuSerializer(serializers.ModelSerializer):
             )
         return cost
 
-    def validate_alcohol(self, alcohol):
-        if alcohol > 100:
+    def validate_alcohol_percent(self, alcohol_percent):
+        if alcohol_percent > 100:
             raise serializers.ValidationError(
                 'Процент содержания спирта не может быть больше 100%.'
             )
-        return alcohol
+        return alcohol_percent
