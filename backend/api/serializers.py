@@ -171,7 +171,7 @@ class MenuSerializer(serializers.ModelSerializer):
             'pub'
         )
 
-    def validate_name(self, alcohol_name):
+    def validate_alcohol_name(self, alcohol_name):
         user = CustomUser.objects.get(id=self.context['request'].user.id)
         pub = Pub.objects.get(company=user)
         if Menu.objects.filter(pub=pub, alcohol_name=alcohol_name).exists():
@@ -191,5 +191,9 @@ class MenuSerializer(serializers.ModelSerializer):
         if alcohol_percent > 100:
             raise serializers.ValidationError(
                 'Процент содержания спирта не может быть больше 100%.'
+            )
+        elif alcohol_percent < 0:
+            raise serializers.ValidationError(
+                'Процент содержания спирта не может быть меньше 0%.'
             )
         return alcohol_percent

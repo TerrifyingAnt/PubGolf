@@ -8,6 +8,7 @@ class Pub(models.Model):
 
     name = models.CharField(
         max_length=255,
+        verbose_name='Название'
     )
     pub_address = models.CharField(
         max_length=255,
