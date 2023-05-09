@@ -4,7 +4,9 @@ from rest_framework.routers import DefaultRouter
 from api.views import (
     CustomUserViewSet,
     FriendsListViewSet,
-    FriendsCreateDestroyViewSet
+    FriendsCreateDestroyViewSet,
+    PubViewSet,
+    MenuViewSet,
 )
 
 router_v1 = DefaultRouter()
@@ -16,6 +18,10 @@ router_v1.register(
     basename='add_delete_friend'
 )
 router_v1.register('users', CustomUserViewSet, basename='users')
+router_v1.register('pubs', PubViewSet, basename='pubs')
+router_v1.register(
+    r'pubs/(?P<pub_id>\d+)/menu', MenuViewSet, basename='menu'
+)
 
 urlpatterns = [
     path('v1/auth/', include('djoser.urls.authtoken')),

@@ -7,6 +7,7 @@ from djoser.serializers import (
 from rest_framework import serializers
 
 from users.models import CustomUser, Friendship
+from pubs.models import Pub, Menu
 
 
 class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
@@ -136,3 +137,63 @@ class FriendsSerializer(serializers.ModelSerializer):
             user=self.context['request'].user,
             friend=obj.friend
         ).exists()
+
+
+class PubSerializer(serializers.ModelSerializer):
+    company = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        model = Pub
+        fields = (
+            'id',
+            'name',
+            'pub_address',
+            'company'
+        )
+
+
+class MenuSerializer(serializers.ModelSerializer):
+    pub = serializers.IntegerField(
+        source='pub.id',
+        read_only=True
+    )
+
+    class Meta:
+        model = Menu
+        fields = (
+            'id',
+            'alcohol_name',
+            'alcohol_percent',
+            'cost',
+            'pub'
+        )
+
+    def validate_alcohol_name(self, alcohol_name):
+        user = CustomUser.objects.get(id=self.context['request'].user.id)
+        pub = Pub.objects.get(company=user)
+        if Menu.objects.filter(pub=pub, alcohol_name=alcohol_name).exists():
+            raise serializers.ValidationError(
+                'Такой алкоголь уже есть в меню.'
+            )
+        return alcohol_name
+
+    def validate_cost(self, cost):
+        if cost < 0:
+            raise serializers.ValidationError(
+                'Цена не может быть меньше 0.'
+            )
+        return cost
+
+    def validate_alcohol_percent(self, alcohol_percent):
+        if alcohol_percent > 100:
+            raise serializers.ValidationError(
+                'Процент содержания спирта не может быть больше 100%.'
+            )
+        elif alcohol_percent < 0:
+            raise serializers.ValidationError(
+                'Процент содержания спирта не может быть меньше 0%.'
+            )
+        return alcohol_percent
