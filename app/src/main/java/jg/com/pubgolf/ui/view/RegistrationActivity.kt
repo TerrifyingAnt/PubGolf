@@ -94,10 +94,15 @@ fun RegistrationScreen(viewModel: AuthViewModel) {
             context.startActivity(intent)
         }
         if (state is RegistrationState.Error) {
-            Toast.makeText(context, (state as RegistrationState.Error).response.body().toString(), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, (state as RegistrationState.Error).response, Toast.LENGTH_LONG).show()
         }
     }
 
+
+    /*
+    TODO сделай проверку на количество символов, правильность введенного телефона
+        там в доке расписано как это все происходит
+     */
     Column(verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
 
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
@@ -124,7 +129,7 @@ fun RegistrationScreen(viewModel: AuthViewModel) {
                     usernameText.value != "" &&
                     passwordText.value != "" &&
                         rePasswordText.value == passwordText.value &&
-                        passwordText.value.length > 8 &&
+                        passwordText.value.length > 7 &&
                         phoneText.value != "") {
                     val registrationRequest = RegistrationRequest(usernameText.value,
                         emailText.value,
