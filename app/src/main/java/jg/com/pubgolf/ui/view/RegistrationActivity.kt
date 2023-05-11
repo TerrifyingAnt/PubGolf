@@ -3,11 +3,15 @@ package jg.com.pubgolf.ui.view
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -15,20 +19,23 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import jg.com.pubgolf.R
 import jg.com.pubgolf.data.api.ApiHelper
 import jg.com.pubgolf.data.api.RetrofitBuilder
-import jg.com.pubgolf.data.model.AuthModels.AuthRequest
 import jg.com.pubgolf.data.model.RegisterationModels.RegistrationRequest
 import jg.com.pubgolf.ui.theme.PubGolfTheme
 import jg.com.pubgolf.viewModel.AuthViewModel
 import jg.com.pubgolf.viewModel.ViewModelFactory
-import jg.com.pubgolf.viewModel.state.AuthState
 import jg.com.pubgolf.viewModel.state.RegistrationState
 
 class RegistrationActivity: ComponentActivity() {
@@ -58,10 +65,8 @@ class RegistrationActivity: ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun RegistrationScreen(viewModel: AuthViewModel) {
-
 
     // хранение почты
     val emailText = remember{ mutableStateOf("") }
@@ -103,10 +108,42 @@ fun RegistrationScreen(viewModel: AuthViewModel) {
     TODO сделай проверку на количество символов, правильность введенного телефона
         там в доке расписано как это все происходит
      */
-    Column(verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
+    Column(verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
 
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            Text("Добро пожаловть!")
+            Image(
+                modifier = Modifier.size(90.dp),
+                painter = painterResource(id = R.drawable.ic_cheers),
+                contentDescription = "",
+                alignment = Alignment.TopCenter
+            )
+        }
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            Text(
+                "Pub",
+                color = MaterialTheme.colors.primaryVariant,
+                style = MaterialTheme.typography.h4,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Text(
+                "Golf",
+                color = MaterialTheme.colors.primary,
+                style = MaterialTheme.typography.h4,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+        }
+        Spacer(modifier = Modifier.height(30.dp))
+
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            Text("Добро пожаловать!",
+                color = MaterialTheme.colors.primary,
+                style = MaterialTheme.typography.h4,
+                fontWeight = FontWeight.Medium,
+                fontSize = 20.sp
+            )
         }
         Spacer(modifier = Modifier.height(5.dp))
 
@@ -122,15 +159,25 @@ fun RegistrationScreen(viewModel: AuthViewModel) {
         // Повторное поле ввода пароля
         hidedText(text = rePasswordText, placeholder = "Повторите пароль")
 
+        val phoneRegex = Regex("^\\+7\\d{10}\$")
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         // Кнопка входа
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = {
+            Button(
+                modifier = Modifier
+                    .width(278.dp)
+                    .height(50.dp),
+                onClick = {
                 if (emailText.value != "" &&
                     usernameText.value != "" &&
                     passwordText.value != "" &&
                         rePasswordText.value == passwordText.value &&
                         passwordText.value.length > 7 &&
-                        phoneText.value != "") {
+                        phoneText.value != "" &&
+                        phoneText.value.matches(phoneRegex)) {
+                    Log.d("penis", phoneText.value.matches(phoneRegex).toString())
                     val registrationRequest = RegistrationRequest(usernameText.value,
                         emailText.value,
                         passwordText.value,
@@ -141,19 +188,46 @@ fun RegistrationScreen(viewModel: AuthViewModel) {
                         rePasswordText.value
                     )
                     viewModel.registerUser(registrationRequest)
-                }
-            }) {
-                Text("Зарегистрироваться")
+                    }
+                },
+                colors = ButtonDefaults
+                    .buttonColors(
+                        backgroundColor = MaterialTheme.colors.primary
+                    ),
+                shape = RoundedCornerShape(5.dp)
+            ) {
+                Text(
+                    "Зарегистрироваться",
+                    color = MaterialTheme.colors.primaryVariant,
+                    style = MaterialTheme.typography.h1,
+                    fontSize = 16.sp
+                )
             }
         }
 
+        Spacer(modifier = Modifier.height(10.dp))
         // Кнопка регистрации
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = {
+            Button(
+                modifier = Modifier
+                    .width(278.dp)
+                    .height(50.dp),
+                onClick = {
                 activity.startActivity(Intent(context, LoginActivity::class.java))
                 activity.finish()
-            }) {
-                Text("У меня уже есть аккаунт")
+                },
+                colors = ButtonDefaults
+                    .buttonColors(
+                        backgroundColor = MaterialTheme.colors.primary
+                    ),
+                shape = RoundedCornerShape(5.dp)
+            ) {
+                Text(
+                    "У меня уже есть аккаунт",
+                    color = MaterialTheme.colors.primaryVariant,
+                    style = MaterialTheme.typography.h1,
+                    fontSize = 16.sp
+                )
             }
         }
     }
@@ -165,7 +239,8 @@ fun defaultText(text: MutableState<String>, placeholder: String) {
         OutlinedTextField(
             value = text.value,
             onValueChange = { changedText -> text.value = changedText },
-            placeholder = { Text(placeholder) })
+            placeholder = { Text(placeholder) }
+        )
     }
     Spacer(modifier = Modifier.height(5.dp))
 }
@@ -197,4 +272,3 @@ fun hidedText(text: MutableState<String>, placeholder: String) {
     }
     Spacer(modifier = Modifier.height(5.dp))
 }
-
