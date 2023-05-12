@@ -6,7 +6,7 @@ from djoser.serializers import (
 )
 from rest_framework import serializers
 
-from users.models import CustomUser, Friendship
+from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
 
 
@@ -49,11 +49,10 @@ class CustomUserSerializer(UserSerializer):
         )
 
     def get_is_friend(self, obj):
-        return (self.context['request'].user.is_authenticated
-                and Friendship.objects.filter(
-                    user=self.context['request'].user,
-                    friend=obj
-        ).exists())
+        request_user = self.context['request'].user
+
+        return (request_user.is_authenticated
+                and obj in request_user.friends.all())
 
 
 class CustomUserMeSerializer(CustomUserSerializer):
@@ -98,45 +97,87 @@ class SetEmailSerializer(
         return super().validate(attrs)
 
 
-class FriendsSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(
-        source='friend.id',
-        read_only=True,
-    )
-    username = serializers.CharField(
-        source='friend.username',
+class FriendshipRequestSerializer(serializers.ModelSerializer):
+    from_user = serializers.CharField(
+        source='from_user.username',
         read_only=True
     )
-    is_friend = serializers.SerializerMethodField()
+    to_user = serializers.CharField(
+        source='to_user.username',
+        read_only=True
+    )
 
     class Meta:
-        model = Friendship
-        fields = (
-            'id',
-            'username',
-            'is_friend',
-        )
+        model = FriendshipRequest
+        fields = '__all__'
 
     def validate(self, data):
         user = CustomUser.objects.get(id=self.context['request'].user.id)
         friend = CustomUser.objects.get(id=self.context['friend_id'])
+
         if user == friend:
             raise serializers.ValidationError(
-                'Нельзя добавить в друзья самого себя!')
+                'Нельзя добавить в друзья самого себя!'
+            )
+
         if friend.is_company:
             raise serializers.ValidationError(
                 'Нельзя добавить в друзья аккаунт комапнии!'
             )
-        if Friendship.objects.filter(user=user, friend=friend).exists():
+
+        if FriendshipRequest.objects.filter(
+            from_user=user,
+            to_user=friend
+        ).exists():
+            raise serializers.ValidationError('Заявка уже отправлена!')
+
+        if friend in user.friends.all():
             raise serializers.ValidationError(
-                'Пользователь уже есть у Вас в друзьях!')
+                'Пользователь уже есть у Вас в друзьях!'
+            )
+
         return data
 
-    def get_is_friend(self, obj):
-        return Friendship.objects.filter(
-            user=self.context['request'].user,
-            friend=obj.friend
-        ).exists()
+
+# class FriendsSerializer(serializers.ModelSerializer):
+#     id = serializers.IntegerField(
+#         source='friend.id',
+#         read_only=True,
+#     )
+#     username = serializers.CharField(
+#         source='friend.username',
+#         read_only=True
+#     )
+#     is_friend = serializers.SerializerMethodField()
+#
+#     class Meta:
+#         model = Friendship
+#         fields = (
+#             'id',
+#             'username',
+#             'is_friend',
+#         )
+#
+#     def validate(self, data):
+#         user = CustomUser.objects.get(id=self.context['request'].user.id)
+#         friend = CustomUser.objects.get(id=self.context['friend_id'])
+#         if user == friend:
+#             raise serializers.ValidationError(
+#                 'Нельзя добавить в друзья самого себя!')
+#         if friend.is_company:
+#             raise serializers.ValidationError(
+#                 'Нельзя добавить в друзья аккаунт комапнии!'
+#             )
+#         if Friendship.objects.filter(user=user, friend=friend).exists():
+#             raise serializers.ValidationError(
+#                 'Пользователь уже есть у Вас в друзьях!')
+#         return data
+#
+#     def get_is_friend(self, obj):
+#         return Friendship.objects.filter(
+#             user=self.context['request'].user,
+#             friend=obj.friend
+#         ).exists()
 
 
 class PubSerializer(serializers.ModelSerializer):

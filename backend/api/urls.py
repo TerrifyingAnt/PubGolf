@@ -6,19 +6,25 @@ from rest_framework.routers import DefaultRouter
 
 from api.views import (
     CustomUserViewSet,
-    FriendsListViewSet,
-    FriendsCreateDestroyViewSet,
+    FriendViewSet,
+    FriendshipRequestCreateDestroyViewSet,
+    FriendshipRequestViewSet,
     PubViewSet,
     MenuViewSet,
 )
 
 router_v1 = DefaultRouter()
 
-router_v1.register('users/friends', FriendsListViewSet, basename='friends')
+router_v1.register('users/friends', FriendViewSet, basename='friends')
 router_v1.register(
     r'users/(?P<user_id>\d+)/friend',
-    FriendsCreateDestroyViewSet,
-    basename='add_delete_friend'
+    FriendshipRequestCreateDestroyViewSet,
+    basename='send_delete_friendship-request'
+)
+router_v1.register(
+    'users/friendship-requests',
+    FriendshipRequestViewSet,
+    basename='friendship_requests'
 )
 router_v1.register('users', CustomUserViewSet, basename='users')
 router_v1.register('pubs', PubViewSet, basename='pubs')

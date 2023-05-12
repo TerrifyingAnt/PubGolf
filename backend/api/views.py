@@ -11,7 +11,7 @@ from api.permissions import (
     IsPubOwnerOrReadOnly
 )
 from api.serializers import (
-    FriendsSerializer,
+    FriendshipRequestSerializer,
     CustomUserCreateSerializer,
     CustomPasswordSerializer,
     CustomUserSerializer,
@@ -20,7 +20,7 @@ from api.serializers import (
     PubSerializer,
     MenuSerializer,
 )
-from users.models import CustomUser, Friendship
+from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
 
 
@@ -62,43 +62,112 @@ class CustomUserViewSet(UserViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class FriendsBaseViewSet(viewsets.GenericViewSet):
-    serializer_class = FriendsSerializer
+class FriendshipRequestBaseViewSet(viewsets.GenericViewSet):
+    serializer_class = FriendshipRequestSerializer
     permission_classes = (PlayerPermission,)
 
+
+class FriendshipRequestViewSet(
+    mixins.ListModelMixin,
+    FriendshipRequestBaseViewSet
+):
     def get_queryset(self):
-        return self.request.user.user_friends.all()
+        request = self.request
+
+        if (
+            'from-me' in request.query_params
+            and request.query_params['from-me']
+        ):
+            return request.user.from_me_requests.all()
+
+        return request.user.to_me_requests
+
+    @action(methods=['post'], detail=True, url_path='accept')
+    def accept_request(self, request, pk):
+        friend_request = FriendshipRequest.objects.get(id=pk)
+
+        if friend_request.to_user == request.user:
+            friend_request.to_user.friends.add(friend_request.from_user)
+            friend_request.from_user.friends.add(friend_request.to_user)
+            friend_request.delete()
+            return Response(
+                {'status': 'Пользователь добавлен в друзья'},
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-class FriendsListViewSet(mixins.ListModelMixin, FriendsBaseViewSet):
-    pagination_class = GamesAndFriendsPagination
-
-
-class FriendsCreateDestroyViewSet(
+class FriendshipRequestCreateDestroyViewSet(
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
-    FriendsBaseViewSet
+    FriendshipRequestBaseViewSet
 ):
+    queryset = FriendshipRequest.objects.all()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['friend_id'] = self.kwargs.get('user_id')
+
         return context
 
+    def create(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+
+        to_friend_request = FriendshipRequest.objects.filter(
+            from_user_id=user_id,
+            to_user=request.user
+        )
+
+        if to_friend_request.exists():
+            to_user = get_object_or_404(CustomUser, id=user_id)
+            request.user.friends.add(to_user)
+            to_user.friends.add(request.user)
+            to_friend_request.delete()
+            return Response(
+                {'status': 'Пользователь добавлен в друзья'},
+                status=status.HTTP_201_CREATED
+            )
+
+        return super().create(request)
+
     def perform_create(self, serializer):
+        request_user = self.request.user
+
         serializer.save(
-            user=self.request.user,
-            friend=get_object_or_404(
-                CustomUser, id=self.kwargs.get('user_id')
-            ))
+            from_user=request_user,
+            to_user=get_object_or_404(
+                CustomUser,
+                id=self.kwargs.get('user_id')
+            )
+        )
 
     @action(methods=['delete'], detail=True)
     def delete(self, request, user_id):
         get_object_or_404(
-            Friendship,
-            user=request.user,
-            friend_id=user_id
+            FriendshipRequest,
+            from_user=request.user,
+            to_user=user_id
         ).delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FriendViewSet(
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+    serializer_class = CustomUserSerializer
+
+    def get_queryset(self):
+        return self.request.user.friends.all()
+
+    @action(methods=['delete'], detail=True)
+    def delete(self, request, pk):
+        friend_to_delete = get_object_or_404(CustomUser, id=pk)
+        request.user.friends.remove(friend_to_delete)
+        friend_to_delete.friends.remove(request.user)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
