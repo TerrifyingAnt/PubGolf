@@ -59,6 +59,30 @@ class Game(models.Model):
         return self.name
 
 
+class Invitation(models.Model):
+    """Модель приглашения в комнату."""
+
+    sender = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='invitations_sent',
+        verbose_name='Отправитель'
+    )
+    recipient = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='invitations_received',
+        verbose_name='Получатель'
+    )
+
+    class Meta:
+        verbose_name = 'Приглашение в комнату'
+        verbose_name_plural = 'Приглашения в комнату'
+
+    def __str__(self):
+        return f'{self.sender} --- {self.recipient}'
+
+
 class GameUser(models.Model):
     user = models.ForeignKey(
         CustomUser,
