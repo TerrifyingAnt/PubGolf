@@ -1,3 +1,3 @@
 package jg.com.pubgolf.data.model.AuthModels
 
-data class AuthResponse(val token: String)
+data class AuthResponse(val auth_token: String)

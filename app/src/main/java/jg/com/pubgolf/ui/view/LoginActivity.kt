@@ -1,6 +1,7 @@
 package jg.com.pubgolf.ui.view
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -28,23 +29,28 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dagger.hilt.android.AndroidEntryPoint
 import jg.com.pubgolf.R
 import jg.com.pubgolf.data.api.ApiHelper
 import jg.com.pubgolf.data.api.RetrofitBuilder
 import jg.com.pubgolf.data.model.AuthModels.AuthRequest
 import jg.com.pubgolf.ui.theme.*
+import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.AuthViewModel
 import jg.com.pubgolf.viewModel.ViewModelFactory
 import jg.com.pubgolf.viewModel.state.AuthState
 
-
+@AndroidEntryPoint
 class LoginActivity : ComponentActivity() {
+
+    private lateinit var sharedPreferencesManager: SharedPreferencesManager
 
     // viewModel авторизации
     private val viewModel: AuthViewModel by viewModels {
         ViewModelFactory(
             ApiHelper(
-                RetrofitBuilder.apiService,
+                RetrofitBuilder.provideApiService(RetrofitBuilder.provideRetrofit()),
+                sharedPreferencesManager
             )
         )
     }
@@ -52,6 +58,8 @@ class LoginActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedPreferencesManager = SharedPreferencesManager(this)
 
         setContent {
             PubGolfTheme {

@@ -8,8 +8,12 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
+import dagger.hilt.DefineComponent
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
 import jg.com.pubgolf.ui.theme.PubGolfTheme
 import jg.com.pubgolf.ui.view.navigation.MainNavigation
+
 
 class CreateGameActivity: ComponentActivity() {
 

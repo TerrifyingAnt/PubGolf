@@ -1,5 +1,9 @@
 package jg.com.pubgolf.data.api
 
+import android.app.Application
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.android.internal.managers.ApplicationComponentManager
 import jg.com.pubgolf.data.model.AuthModels.AuthRequest
 import jg.com.pubgolf.data.model.AuthModels.AuthResponse
 import jg.com.pubgolf.data.model.RegisterationModels.RegistrationRequest

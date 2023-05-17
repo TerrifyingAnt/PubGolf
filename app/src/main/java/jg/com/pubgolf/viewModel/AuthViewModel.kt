@@ -1,10 +1,18 @@
 package jg.com.pubgolf.viewModel
 
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.internal.Contexts.getApplication
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jg.com.pubgolf.R
 import jg.com.pubgolf.data.api.ApiHelper
 import jg.com.pubgolf.data.model.AuthModels.AuthRequest
 import jg.com.pubgolf.data.model.RegisterationModels.RegistrationRequest
+import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.state.AuthState
 import jg.com.pubgolf.viewModel.state.RegistrationState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,9 +23,10 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import retrofit2.HttpException
+import javax.inject.Inject
 
-
-class AuthViewModel(private val apiHelper: ApiHelper) : ViewModel() {
+@HiltViewModel
+class AuthViewModel @Inject constructor(val apiHelper: ApiHelper, val sharedPreferencesManager: SharedPreferencesManager) : ViewModel()  {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState
@@ -31,8 +40,7 @@ class AuthViewModel(private val apiHelper: ApiHelper) : ViewModel() {
             try {
                 val authResponse = apiHelper.auth(request)
                 _authState.value = AuthState.Success(authResponse)
-                // TODO:
-                // запись в шейред преференсес
+                sharedPreferencesManager.saveVal("token", authResponse.auth_token)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Возникла ошибка")
             }
@@ -45,6 +53,25 @@ class AuthViewModel(private val apiHelper: ApiHelper) : ViewModel() {
             try {
                 val registrationResponse = apiHelper.register(request)
                 _registrationState.value = RegistrationState.Success(registrationResponse)
+
+                // TODO
+                // замени вот это вот на одну функцию, которая будет принимать в себя просто класс registrationResponse
+                // и записывать это все сама
+                // сделай это в классе с шардами собственно, а тут просто вызывай
+                sharedPreferencesManager.saveVal("username", registrationResponse.username)
+                sharedPreferencesManager.saveVal("email", registrationResponse.email)
+                sharedPreferencesManager.saveVal("password", registrationResponse.password)
+                sharedPreferencesManager.saveVal("role", registrationResponse.role)
+                sharedPreferencesManager.saveVal("bio", registrationResponse.bio)
+                sharedPreferencesManager.saveVal("photo", registrationResponse.photo)
+                sharedPreferencesManager.saveVal("phone_number", registrationResponse.phone_number)
+
+                val authRequest = AuthRequest(request.email, request.password)
+                val authResponse = apiHelper.auth(authRequest)
+
+                _authState.value = AuthState.Success(authResponse)
+                sharedPreferencesManager.saveVal("token", authResponse.auth_token)
+
 
             } catch (e: HttpException) {
                 try {

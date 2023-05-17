@@ -23,17 +23,21 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import jg.com.pubgolf.ui.theme.PubGolfTheme
 import jg.com.pubgolf.ui.view.navigation.BottomMenuItem
 import jg.com.pubgolf.ui.view.navigation.MainNavigation
+import jg.com.pubgolf.utils.SharedPreferencesManager
 
 import java.util.*
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-
+    private lateinit var sharedPreferencesManager: SharedPreferencesManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedPreferencesManager = SharedPreferencesManager(this)
 
         setContent {
             PubGolfTheme {
@@ -42,6 +46,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background,
                 ) {
                     MainNavigation()
+                    println("из активити" + sharedPreferencesManager.getVal("token")!!)
                 }
             }
         }
