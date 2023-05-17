@@ -8,6 +8,7 @@ from rest_framework import serializers
 
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
+from games.models import Game, Invitation, GameUser
 
 
 class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
@@ -238,3 +239,84 @@ class MenuSerializer(serializers.ModelSerializer):
                 'Процент содержания спирта не может быть меньше 0%.'
             )
         return alcohol_percent
+
+
+class GameSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Game
+        fields = (
+            'id',
+            'name',
+            'difficulty_level',
+            'budget_level',
+            'status',
+            'start_time',
+            'finish_time',
+        )
+
+    def validate_name(self, name):
+        if Game.objects.filter(name=name).exists():
+            raise serializers.ValidationError(
+                'Комната с таким именем уже существует.'
+            )
+
+
+class InvitationSerializer(serializers.ModelSerializer):
+    sender = serializers.ReadOnlyField(
+        source='sender.username',
+    )
+    recipient = serializers.ReadOnlyField(
+        source='recipient.username',
+    )
+    game = serializers.IntegerField(
+        source='game.id',
+        read_only=True
+    )
+
+    class Meta:
+        model = Invitation
+        fields = (
+            'id',
+            'sender',
+            'recipient',
+            'game'
+        )
+
+    def validate(self, data):
+        sender = CustomUser.objects.get(id=self.context['request'].user.id)
+        recipient_id = self.context['view'].kwargs['user_id']
+        recipient = CustomUser.objects.get(id=recipient_id)
+
+        if sender == recipient:
+            raise serializers.ValidationError(
+                'Нельзя пригласить самого себя!'
+            )
+
+        if recipient.is_company:
+            raise serializers.ValidationError(
+                'Нельзя пригласить аккаунт комапнии!'
+            )
+
+        if Invitation.objects.filter(
+            sender=sender,
+            recipient=recipient
+        ).exists():
+            raise serializers.ValidationError('Приглашение уже отправлено!')
+
+        return data
+
+
+class GameUserSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+    game = serializers.IntegerField(
+        source='game.id',
+        read_only=True
+    )
+
+    class Meta:
+        model = GameUser
+        fields = '__all__'

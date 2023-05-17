@@ -19,9 +19,13 @@ from api.serializers import (
     SetEmailSerializer,
     PubSerializer,
     MenuSerializer,
+    GameSerializer,
+    GameUserSerializer,
+    InvitationSerializer
 )
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
+from games.models import Game, Invitation, GameUser
 
 
 class CustomUserViewSet(UserViewSet):
@@ -206,3 +210,68 @@ class MenuViewSet(
         user = self.request.user
         pub = Pub.objects.get(company=user)
         serializer.save(pub=pub)
+
+
+class GameViewSet(viewsets.ModelViewSet):
+    queryset = Game.objects.all()
+    serializer_class = GameSerializer
+    permission_classes = (PlayerPermission, )
+
+
+class InvitationCreateViewSet(
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = Invitation.objects.all()
+    serializer_class = InvitationSerializer
+    permission_classes = (PlayerPermission, )
+
+    def perform_create(self, serializer):
+        game_id = self.kwargs['game_id']
+        user_id = self.kwargs['user_id']
+        game = Game.objects.get(id=game_id)
+        recipient = CustomUser.objects.get(id=user_id)
+        serializer.save(
+            sender=self.request.user,
+            recipient=recipient,
+            game=game
+        )
+
+
+class InvitationReadViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
+    serializer_class = InvitationSerializer
+    permission_classes = (PlayerPermission, )
+
+    def get_queryset(self):
+        user = self.request.user
+        return Invitation.objects.filter(recipient=user)
+
+
+class GameUserViewSet(
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = GameUser.objects.all()
+    serializer_class = GameUserSerializer
+    permission_classes = (PlayerPermission, )
+
+    def perform_create(self, serializer):
+        game_id = self.kwargs['game_id']
+        game = Game.objects.get(id=game_id)
+        user = self.request.user
+        serializer.save(user=user, game=game)
+
+    @action(methods=['delete'], detail=True)
+    def delete(self, request, game_id):
+        get_object_or_404(
+            GameUser,
+            user=request.user,
+            id=game_id
+        ).delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

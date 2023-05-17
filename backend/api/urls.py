@@ -11,6 +11,10 @@ from api.views import (
     FriendshipRequestViewSet,
     PubViewSet,
     MenuViewSet,
+    GameViewSet,
+    InvitationCreateViewSet,
+    InvitationReadViewSet,
+    GameUserViewSet
 )
 
 router_v1 = DefaultRouter()
@@ -30,6 +34,22 @@ router_v1.register('users', CustomUserViewSet, basename='users')
 router_v1.register('pubs', PubViewSet, basename='pubs')
 router_v1.register(
     r'pubs/(?P<pub_id>\d+)/menu', MenuViewSet, basename='menu'
+)
+router_v1.register('party', GameViewSet, basename='party')
+router_v1.register(
+    r'party/(?P<game_id>\d+)/join',
+    GameUserViewSet,
+    basename='party_join'
+)
+router_v1.register(
+    'users/invitation',
+    InvitationReadViewSet,
+    basename='invitation_requests'
+)
+router_v1.register(
+    r'party/(?P<game_id>\d+)/users/(?P<user_id>\d+)/invite',
+    InvitationCreateViewSet,
+    basename='send_invite'
 )
 
 schema_view = get_schema_view(

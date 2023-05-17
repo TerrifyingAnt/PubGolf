@@ -4,13 +4,13 @@ from users.models import CustomUser
 
 DIFFICULTY_LEVELS = (
     ('underbeerman', 'Подпивасник'),
-    ('', ''),
-    ('', '')
+    ('fan', 'Любитель'),
+    ('freelanholic', 'Фриланголик')
 )
 BUDGET_LEVELS = (
-    ('', ''),
-    ('', ''),
-    ('', '')
+    ('homeless', 'Бомж'),
+    ('fan', 'Любитель'),
+    ('major', 'Мажор')
 )
 GAME_STATUSES = (
     ('created', 'Создана комната'),
@@ -20,6 +20,8 @@ GAME_STATUSES = (
 
 
 class Game(models.Model):
+    """Модель комнаты."""
+
     name = models.CharField(
         unique=True,
         max_length=150,
@@ -74,6 +76,12 @@ class Invitation(models.Model):
         related_name='invitations_received',
         verbose_name='Получатель'
     )
+    game = models.ForeignKey(
+        Game,
+        on_delete=models.CASCADE,
+        verbose_name='Комната',
+        related_name='invitations'
+    )
 
     class Meta:
         verbose_name = 'Приглашение в комнату'
@@ -86,11 +94,13 @@ class Invitation(models.Model):
 class GameUser(models.Model):
     user = models.ForeignKey(
         CustomUser,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Игрок'
     )
     game = models.ForeignKey(
         Game,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Комната'
     )
 
     def __str__(self):
