@@ -320,3 +320,21 @@ class GameUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = GameUser
         fields = '__all__'
+
+    def validate(self, data):
+        user = CustomUser.objects.get(id=self.context['request'].user.id)
+        game_id = self.context['view'].kwargs['game_id']
+        game = CustomUser.objects.get(id=game_id)
+
+        if user.is_company:
+            raise serializers.ValidationError(
+                'Нельзя войти в игру будучи компанией.'
+            )
+
+        if GameUser.objects.filter(
+            user=user,
+            game=game
+        ).exists():
+            raise serializers.ValidationError('Вы уже присоединились к комнате.')
+
+        return data
