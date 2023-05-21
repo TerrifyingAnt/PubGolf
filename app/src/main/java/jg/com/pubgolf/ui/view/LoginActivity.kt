@@ -1,7 +1,6 @@
 package jg.com.pubgolf.ui.view
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -34,7 +33,7 @@ import jg.com.pubgolf.R
 import jg.com.pubgolf.data.api.ApiHelper
 import jg.com.pubgolf.data.api.RetrofitBuilder
 import jg.com.pubgolf.data.model.AuthModels.AuthRequest
-import jg.com.pubgolf.ui.theme.*
+import jg.com.pubgolf.ui.theme.PubGolfTheme
 import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.AuthViewModel
 import jg.com.pubgolf.viewModel.ViewModelFactory
@@ -105,8 +104,6 @@ fun LoginScreen(viewModel: AuthViewModel) {
         }
     }
 
-    // TODO Доделать картинку пабгольфа
-    // TODO Просто дизайн прикольнее сделай пжлст
     Column(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxSize()

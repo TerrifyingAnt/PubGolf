@@ -110,11 +110,6 @@ fun RegistrationScreen(viewModel: AuthViewModel) {
         }
     }
 
-
-    /*
-    TODO сделай проверку на количество символов, правильность введенного телефона
-        там в доке расписано как это все происходит
-     */
     Column(verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
 
@@ -126,6 +121,7 @@ fun RegistrationScreen(viewModel: AuthViewModel) {
                 alignment = Alignment.TopCenter
             )
         }
+
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
             Text(
                 "Pub",
