@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Invitation, Game, GameUser
+from .models import Game, GameUser
 
 
 @admin.register(Game)

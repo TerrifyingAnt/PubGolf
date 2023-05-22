@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import viewsets, mixins, status, permissions, serializers
 from rest_framework.decorators import action
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
 from api.pagination import GamesAndFriendsPagination
@@ -20,12 +21,11 @@ from api.serializers import (
     PubSerializer,
     MenuSerializer,
     GameSerializer,
-    GameUserSerializer,
-    InvitationSerializer
+    GameCreateSerializer,
 )
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
-from games.models import Game, Invitation, GameUser
+from games.models import Game
 
 
 class CustomUserViewSet(UserViewSet):
@@ -198,80 +198,33 @@ class MenuViewSet(
     permission_classes = (IsPubOwnerOrReadOnly, )
 
     def get_queryset(self):
-        pub_id = self.kwargs['pub_id']
-        return Menu.objects.filter(pub=pub_id)
+        return Menu.objects.filter(pub=self.kwargs.get('pub_id'))
 
     def retrieve(self, request, pk=None, pub_id=None):
-        menu = self.get_object()
-        serializer = self.get_serializer(menu)
+        serializer = self.get_serializer(self.get_object())
         return Response(serializer.data)
 
     def perform_create(self, serializer):
-        user = self.request.user
-        pub = Pub.objects.get(company=user)
-        serializer.save(pub=pub)
+        serializer.save(pub=Pub.objects.get(company=self.request.user))
 
 
 class GameViewSet(viewsets.ModelViewSet):
-    queryset = Game.objects.all()
-    serializer_class = GameSerializer
-    permission_classes = (PlayerPermission, )
+    serializer_class = GameCreateSerializer
+    permission_classes = (PlayerPermission,)
 
-
-class InvitationCreateViewSet(
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet
-):
-    queryset = Invitation.objects.all()
-    serializer_class = InvitationSerializer
-    permission_classes = (PlayerPermission, )
-
-    def perform_create(self, serializer):
-        game_id = self.kwargs['game_id']
-        user_id = self.kwargs['user_id']
-        game = Game.objects.get(id=game_id)
-        recipient = CustomUser.objects.get(id=user_id)
-        serializer.save(
-            sender=self.request.user,
-            recipient=recipient,
-            game=game
-        )
-
-
-class InvitationReadViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet
-):
-    serializer_class = InvitationSerializer
-    permission_classes = (PlayerPermission, )
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return GameSerializer
+        return GameCreateSerializer
 
     def get_queryset(self):
-        user = self.request.user
-        return Invitation.objects.filter(recipient=user)
-
-
-class GameUserViewSet(
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
-    queryset = GameUser.objects.all()
-    serializer_class = GameUserSerializer
-    permission_classes = (PlayerPermission, )
-
-    def perform_create(self, serializer):
-        game_id = self.kwargs['game_id']
-        game = Game.objects.get(id=game_id)
-        user = self.request.user
-        serializer.save(user=user, game=game)
+        return Game.objects.filter(players=self.request.user)
 
     @action(methods=['delete'], detail=True)
-    def delete(self, request, game_id):
+    def delete(self, request, pk):
         get_object_or_404(
-            GameUser,
-            user=request.user,
-            id=game_id
+            Game,
+            id=pk
         ).delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)

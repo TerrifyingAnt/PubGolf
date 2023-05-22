@@ -73,6 +73,7 @@ class FriendshipRequest(models.Model):
     )
 
     class Meta:
+        unique_together = ('from_user', 'to_user')
         verbose_name = 'Заявка в друзья'
         verbose_name_plural = 'Заявки в друзья'
 

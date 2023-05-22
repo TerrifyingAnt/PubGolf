@@ -17,6 +17,11 @@ GAME_STATUSES = (
     ('started', 'Игра стартовала'),
     ('finished', 'Игра завершилась')
 )
+PLAYER_STATUSES = (
+    ('playing', 'Играет'),
+    ('won', 'Выиграл'),
+    ('lost', 'Проиграл')
+)
 
 
 class Game(models.Model):
@@ -40,6 +45,7 @@ class Game(models.Model):
     status = models.CharField(
         max_length=50,
         choices=GAME_STATUSES,
+        default='created',
         verbose_name='Статус игры'
     )
     start_time = models.DateTimeField(
@@ -52,6 +58,11 @@ class Game(models.Model):
         null=True,
         verbose_name='Время завершения игры'
     )
+    players = models.ManyToManyField(
+        CustomUser,
+        through='GameUser',
+        verbose_name='Игроки',
+    )
 
     class Meta:
         verbose_name = 'Игра'
@@ -61,34 +72,34 @@ class Game(models.Model):
         return self.name
 
 
-class Invitation(models.Model):
-    """Модель приглашения в комнату."""
-
-    sender = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        related_name='invitations_sent',
-        verbose_name='Отправитель'
-    )
-    recipient = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        related_name='invitations_received',
-        verbose_name='Получатель'
-    )
-    game = models.ForeignKey(
-        Game,
-        on_delete=models.CASCADE,
-        verbose_name='Комната',
-        related_name='invitations'
-    )
-
-    class Meta:
-        verbose_name = 'Приглашение в комнату'
-        verbose_name_plural = 'Приглашения в комнату'
-
-    def __str__(self):
-        return f'{self.sender} --- {self.recipient}'
+# class Invitation(models.Model):
+#     """Модель приглашения в комнату."""
+#
+#     sender = models.ForeignKey(
+#         CustomUser,
+#         on_delete=models.CASCADE,
+#         related_name='invitations_sent',
+#         verbose_name='Отправитель'
+#     )
+#     recipient = models.ForeignKey(
+#         CustomUser,
+#         on_delete=models.CASCADE,
+#         related_name='invitations_received',
+#         verbose_name='Получатель'
+#     )
+#     game = models.ForeignKey(
+#         Game,
+#         on_delete=models.CASCADE,
+#         verbose_name='Комната',
+#         related_name='invitations'
+#     )
+#
+#     class Meta:
+#         verbose_name = 'Приглашение в комнату'
+#         verbose_name_plural = 'Приглашения в комнату'
+#
+#     def __str__(self):
+#         return f'{self.sender} --- {self.recipient}'
 
 
 class GameUser(models.Model):
@@ -102,9 +113,18 @@ class GameUser(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Комната'
     )
+    player_status = models.CharField(
+        max_length=50,
+        choices=PLAYER_STATUSES,
+        default='playing',
+        verbose_name='Статус игрока'
+    )
+
+    class Meta:
+        unique_together = ('user', 'game')
 
     def __str__(self):
-        return f'{self.user} --- {self.game}'
+        return f'{self.user} --- {self.game}: {self.player_status}'
 
 
 class Stage(models.Model):

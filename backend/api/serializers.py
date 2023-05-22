@@ -5,10 +5,11 @@ from djoser.serializers import (
     CurrentPasswordSerializer
 )
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
-from games.models import Game, Invitation, GameUser
+from games.models import Game, GameUser
 
 
 class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
@@ -140,47 +141,6 @@ class FriendshipRequestSerializer(serializers.ModelSerializer):
         return data
 
 
-# class FriendsSerializer(serializers.ModelSerializer):
-#     id = serializers.IntegerField(
-#         source='friend.id',
-#         read_only=True,
-#     )
-#     username = serializers.CharField(
-#         source='friend.username',
-#         read_only=True
-#     )
-#     is_friend = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = Friendship
-#         fields = (
-#             'id',
-#             'username',
-#             'is_friend',
-#         )
-#
-#     def validate(self, data):
-#         user = CustomUser.objects.get(id=self.context['request'].user.id)
-#         friend = CustomUser.objects.get(id=self.context['friend_id'])
-#         if user == friend:
-#             raise serializers.ValidationError(
-#                 'Нельзя добавить в друзья самого себя!')
-#         if friend.is_company:
-#             raise serializers.ValidationError(
-#                 'Нельзя добавить в друзья аккаунт комапнии!'
-#             )
-#         if Friendship.objects.filter(user=user, friend=friend).exists():
-#             raise serializers.ValidationError(
-#                 'Пользователь уже есть у Вас в друзьях!')
-#         return data
-#
-#     def get_is_friend(self, obj):
-#         return Friendship.objects.filter(
-#             user=self.context['request'].user,
-#             friend=obj.friend
-#         ).exists()
-
-
 class PubSerializer(serializers.ModelSerializer):
     company = serializers.SlugRelatedField(
         slug_field='username',
@@ -241,100 +201,63 @@ class MenuSerializer(serializers.ModelSerializer):
         return alcohol_percent
 
 
+class GameCreateSerializer(serializers.ModelSerializer):
+    players = serializers.ListField(
+        child=serializers.PrimaryKeyRelatedField(
+            queryset=CustomUser.objects.all()
+        ),
+        write_only=True
+    )
+
+    class Meta:
+        model = Game
+        fields = '__all__'
+        required_fields = (
+            'name',
+            'difficulty_level',
+            'budget_level',
+            'players'
+        )
+
+    def create(self, validated_data):
+        players = validated_data.pop('players')
+        game = Game.objects.create(**validated_data)
+
+        for player in players:
+            GameUser.objects.create(
+                game=game,
+                user=player
+            )
+
+        return game
+
+    def update(self, instance, validated_data):
+        players = validated_data.pop('players')
+        instance.name = validated_data.get('name', instance.name)
+        instance.difficulty_level = validated_data.get(
+            'difficulty_level',
+            instance.difficulty_level
+        )
+        instance.budget_level = validated_data.get(
+            'budget_level',
+            instance.budget_level
+        )
+        instance.save()
+
+        GameUser.objects.filter(game=instance).delete()
+        for player in players:
+            GameUser.objects.create(
+                user=get_object_or_404(
+                    CustomUser,
+                    id=player.id),
+                game=instance
+            )
+
+        return instance
+
+
 class GameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
-        fields = (
-            'id',
-            'name',
-            'difficulty_level',
-            'budget_level',
-            'status',
-            'start_time',
-            'finish_time',
-        )
-
-    def validate_name(self, name):
-        if Game.objects.filter(name=name).exists():
-            raise serializers.ValidationError(
-                'Комната с таким именем уже существует.'
-            )
-
-
-class InvitationSerializer(serializers.ModelSerializer):
-    sender = serializers.ReadOnlyField(
-        source='sender.username',
-    )
-    recipient = serializers.ReadOnlyField(
-        source='recipient.username',
-    )
-    game = serializers.IntegerField(
-        source='game.id',
-        read_only=True
-    )
-
-    class Meta:
-        model = Invitation
-        fields = (
-            'id',
-            'sender',
-            'recipient',
-            'game'
-        )
-
-    def validate(self, data):
-        sender = CustomUser.objects.get(id=self.context['request'].user.id)
-        recipient_id = self.context['view'].kwargs['user_id']
-        recipient = CustomUser.objects.get(id=recipient_id)
-
-        if sender == recipient:
-            raise serializers.ValidationError(
-                'Нельзя пригласить самого себя!'
-            )
-
-        if recipient.is_company:
-            raise serializers.ValidationError(
-                'Нельзя пригласить аккаунт комапнии!'
-            )
-
-        if Invitation.objects.filter(
-            sender=sender,
-            recipient=recipient
-        ).exists():
-            raise serializers.ValidationError('Приглашение уже отправлено!')
-
-        return data
-
-
-class GameUserSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
-    game = serializers.IntegerField(
-        source='game.id',
-        read_only=True
-    )
-
-    class Meta:
-        model = GameUser
         fields = '__all__'
-
-    def validate(self, data):
-        user = CustomUser.objects.get(id=self.context['request'].user.id)
-        game_id = self.context['view'].kwargs['game_id']
-        game = CustomUser.objects.get(id=game_id)
-
-        if user.is_company:
-            raise serializers.ValidationError(
-                'Нельзя войти в игру будучи компанией.'
-            )
-
-        if GameUser.objects.filter(
-            user=user,
-            game=game
-        ).exists():
-            raise serializers.ValidationError('Вы уже присоединились к комнате.')
-
-        return data
