@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -19,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import jg.com.pubgolf.R
 import jg.com.pubgolf.ui.view.AboutUsActivity
-import jg.com.pubgolf.ui.view.AchievementActivity
 import jg.com.pubgolf.ui.view.DetailProfileActivity
 import jg.com.pubgolf.ui.view.FriendsActivity
 
@@ -52,10 +52,10 @@ fun ProfileScreen() {
                     modifier = Modifier
                         .padding(start = 17.dp)
                         .size(100.dp)
+                        .clip(shape = RoundedCornerShape(10.dp))
                         .clickable {
                             //СМЕНА ФОТКИ
                         }
-                        .clip(shape = RoundedCornerShape(10.dp))
                 )
                 Column(
                     modifier = Modifier.padding(start = 10.dp, top = 10.dp)
@@ -105,22 +105,15 @@ fun ProfileScreen() {
                     context.startActivity(Intent(context, FriendsActivity::class.java))
                     //Активити с друзьями
                 }
-                MenuCard(
-                    iconId = R.drawable.baseline_workspace_achievement_24,
-                    title = "Достижения"
-                ) {
-                    context.startActivity(Intent(context, AchievementActivity::class.java))
-                    //Активити с достижениями
-                }
+                //RIP 22.05.2023 КНОПКА С ДОСТИЖЕНИЯМИ
                 MenuCard(iconId = R.drawable.baseline_info_24, title = "О нас") {
                     context.startActivity(Intent(context, AboutUsActivity::class.java))
                     //Активити "О нас"
                 }
-                Spacer(modifier = Modifier.height(20.dp))
                 Button(
                     modifier = Modifier
                         .width(200.dp)
-                        .height(60.dp),
+                        .height(50.dp),
                     onClick = {
                         //Выход из аккаунта
                     },
@@ -133,8 +126,8 @@ fun ProfileScreen() {
                     Text(
                         text = "ВЫЙТИ",
                         style = MaterialTheme.typography.h1,
-                        color = MaterialTheme.colors.primaryVariant,
-                        fontSize = 32.sp
+                        color = Color.White,
+                        fontSize = 28.sp
                     )
                 }
             }

@@ -195,6 +195,9 @@ fun LoginScreen(viewModel: AuthViewModel) {
                     .width(278.dp)
                     .height(50.dp),
                 onClick = {
+                    //для теста
+                    val intent = Intent(context, MainActivity::class.java)
+                    context.startActivity(intent)
                 if (loginText.value != "" && passwordText.value != "") {
                     val authRequest = AuthRequest(loginText.value, passwordText.value)
                     viewModel.authenticateUser(authRequest)

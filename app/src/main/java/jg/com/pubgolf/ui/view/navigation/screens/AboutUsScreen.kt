@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 
@@ -30,9 +31,12 @@ fun AboutUsScreen(){
         }
     ){
         Column(
-            modifier = Modifier.fillMaxSize().padding(paddingValues = it)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues = it),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
+            Text(text = "НЕТ, Я НЕ ОСТАВЛЮ ЗДЕСЬ МАТ, АРТЁМ")
         }
     }
 }
