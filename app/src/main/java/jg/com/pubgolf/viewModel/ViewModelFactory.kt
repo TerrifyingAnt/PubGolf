@@ -16,6 +16,11 @@ class ViewModelFactory @Inject constructor(private val apiHelper: ApiHelper) : V
             return AuthViewModel(apiHelper, apiHelper.sharedPreferencesManager) as T
         }
 
+        if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return UserViewModel(apiHelper, apiHelper.sharedPreferencesManager) as T
+        }
+
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

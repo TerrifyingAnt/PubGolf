@@ -7,6 +7,7 @@ import jg.com.pubgolf.data.api.ApiHelper
 import jg.com.pubgolf.data.model.AuthModels.AuthRequest
 import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.state.AuthState
+import jg.com.pubgolf.viewModel.state.FriendState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,18 +16,17 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(val apiHelper: ApiHelper, val sharedPreferencesManager: SharedPreferencesManager) : ViewModel()  {
 
-    private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
-    val authState: StateFlow<AuthState> = _authState
+    private val _friendState = MutableStateFlow<FriendState>(FriendState.Loading)
+    val friendState: StateFlow<FriendState> = _friendState
 
-    fun authenticateUser(request: AuthRequest) {
+    fun getFriends() {
         viewModelScope.launch {
-            _authState.value = AuthState.Loading
+            _friendState.value = FriendState.Loading
             try {
-                val authResponse = apiHelper.auth(request)
-                _authState.value = AuthState.Success(authResponse)
-                sharedPreferencesManager.saveVal("token", authResponse.auth_token)
+                val friendList = apiHelper.getFriends()
+                _friendState.value = FriendState.Success(friendList)
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(e.message ?: "Возникла ошибка")
+                _friendState.value = FriendState.Error(e.message ?: "Возникла ошибка")
             }
         }
     }

@@ -11,18 +11,23 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jg.com.pubgolf.R
 import jg.com.pubgolf.data.api.ApiHelper
 import jg.com.pubgolf.data.model.AuthModels.AuthRequest
+import jg.com.pubgolf.data.model.MeResponse
+import jg.com.pubgolf.data.model.MeResponseList
 import jg.com.pubgolf.data.model.RegisterationModels.RegistrationRequest
 import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.state.AuthState
+import jg.com.pubgolf.viewModel.state.MeState
 import jg.com.pubgolf.viewModel.state.RegistrationState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.Response
 import org.json.JSONObject
+import retrofit2.Call
 import java.net.HttpURLConnection
 import java.net.URL
 import retrofit2.HttpException
+import java.lang.Thread.State
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,6 +38,9 @@ class AuthViewModel @Inject constructor(val apiHelper: ApiHelper, val sharedPref
 
     private val _registrationState = MutableStateFlow<RegistrationState>(RegistrationState.Loading)
     val registrationState: StateFlow<RegistrationState> = _registrationState
+
+    private val _me = MutableStateFlow<MeState>(MeState.Loading)
+    val meState: StateFlow<MeState> = _me
 
     fun authenticateUser(request: AuthRequest) {
         viewModelScope.launch {
@@ -47,6 +55,19 @@ class AuthViewModel @Inject constructor(val apiHelper: ApiHelper, val sharedPref
         }
     }
 
+    fun getMe() {
+        viewModelScope.launch {
+            try {
+                val meResponse: MeResponse = apiHelper.getMe()
+                _me.value = MeState.Success(meResponse)
+                sharedPreferencesManager.saveUser(meResponse)
+            } catch (e: Exception) {
+                _me.value = MeState.Error(e.message ?: "Возникла ошибка")
+            }
+        }
+
+    }
+
     fun registerUser(request: RegistrationRequest) {
         viewModelScope.launch {
             _registrationState.value = RegistrationState.Loading
@@ -54,17 +75,7 @@ class AuthViewModel @Inject constructor(val apiHelper: ApiHelper, val sharedPref
                 val registrationResponse = apiHelper.register(request)
                 _registrationState.value = RegistrationState.Success(registrationResponse)
 
-                // TODO
-                // замени вот это вот на одну функцию, которая будет принимать в себя просто класс registrationResponse
-                // и записывать это все сама
-                // сделай это в классе с шардами собственно, а тут просто вызывай
-                sharedPreferencesManager.saveVal("username", registrationResponse.username)
-                sharedPreferencesManager.saveVal("email", registrationResponse.email)
-                sharedPreferencesManager.saveVal("password", registrationResponse.password)
-                sharedPreferencesManager.saveVal("role", registrationResponse.role)
-                sharedPreferencesManager.saveVal("bio", registrationResponse.bio)
-                sharedPreferencesManager.saveVal("photo", registrationResponse.photo)
-                sharedPreferencesManager.saveVal("phone_number", registrationResponse.phone_number)
+                sharedPreferencesManager.saveUser(registrationResponse)
 
                 val authRequest = AuthRequest(request.email, request.password)
                 val authResponse = apiHelper.auth(authRequest)

@@ -21,8 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import jg.com.pubgolf.R
 
+
 @Composable
-fun FriendsScreen() {
+fun FriendsScreen(loading: Boolean) {
 
     val activity = LocalContext.current as Activity
 
@@ -42,15 +43,29 @@ fun FriendsScreen() {
                 })
         }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues = it)
-        ) {
-            //Сюда надо lazycolumn будет впиндюрить
-            FriendCard(image = R.drawable.shrek, name = "Негр1")
-            FriendCard(image = R.drawable.shrek, name = "Негр2")
-            FriendCard(image = R.drawable.shrek, name = "Негр3")
+        if (!loading) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues = it)
+            ) {
+                // TODO
+                // на вход приходит список из класса FriendResponse
+                //Сюда надо lazycolumn будет впиндюрить
+                FriendCard(image = R.drawable.shrek, name = "Негр1")
+                FriendCard(image = R.drawable.shrek, name = "Негр2")
+                FriendCard(image = R.drawable.shrek, name = "Негр3")
+            }
+        }
+        else {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }

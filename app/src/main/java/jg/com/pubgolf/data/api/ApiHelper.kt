@@ -9,6 +9,7 @@ import jg.com.pubgolf.R
 import jg.com.pubgolf.data.model.AuthModels.AuthRequest
 import jg.com.pubgolf.data.model.RegisterationModels.RegistrationRequest
 import jg.com.pubgolf.utils.SharedPreferencesManager
+import retrofit2.http.Header
 import javax.inject.Inject
 
 
@@ -20,7 +21,10 @@ class ApiHelper @Inject constructor(val apiService: ApiService, val sharedPrefer
     // регистрация пользователя
     suspend fun register(request: RegistrationRequest) = apiService.register(request)
 
-    // TODO
-    //suspend fun getFriends() = apiService.getFriends(@Header шарды_с_токеном_доступа)
+    // получение списка пользователей
+    suspend fun getFriends() = apiService.getFriends("Token " + sharedPreferencesManager.getVal("token"))
+
+    // получение информации о самом себе
+    suspend fun getMe() = apiService.getMe("Token " + sharedPreferencesManager.getVal("token"))
 }
 

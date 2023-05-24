@@ -20,6 +20,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import jg.com.pubgolf.ui.view.navigation.screens.HistoryScreen
 import jg.com.pubgolf.ui.view.navigation.screens.ProfileScreen
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -57,6 +59,7 @@ fun MainNavigation() {
         isFloatingActionButtonDocked = true,
         floatingActionButtonPosition = FabPosition.Center
     ) {
+
         NavHost(navController = navController, startDestination = "home") {
             composable("home") {
                 Column(

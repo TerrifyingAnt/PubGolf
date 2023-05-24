@@ -2,12 +2,14 @@ package jg.com.pubgolf.ui.view.navigation.screens
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,10 +20,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import jg.com.pubgolf.R
 import jg.com.pubgolf.ui.view.AboutUsActivity
 import jg.com.pubgolf.ui.view.DetailProfileActivity
 import jg.com.pubgolf.ui.view.FriendsActivity
+import jg.com.pubgolf.ui.view.LoginActivity
+import jg.com.pubgolf.utils.SharedPreferencesManager
 
 
 @Composable
@@ -30,6 +35,8 @@ fun ProfileScreen() {
     val context = LocalContext.current
 
     val activity = LocalContext.current as Activity
+
+    val sharedPreferencesManager = SharedPreferencesManager(context)
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -62,13 +69,13 @@ fun ProfileScreen() {
                 ) {
                     Text(
                         modifier = Modifier.padding(bottom = 5.dp),
-                        text = "SHREK", //СЮДА ПОДРУБАЕМ НИК ПОЛЬЗОВАТЕЛЯ
+                        text = sharedPreferencesManager.getVal("username")!!, //СЮДА ПОДРУБАЕМ НИК ПОЛЬЗОВАТЕЛЯ
                         style = MaterialTheme.typography.h1,
                         fontSize = 26.sp
                     )
                     Text(
                         modifier = Modifier.padding(top = 5.dp),
-                        text = "ID:228", //СЮДА ПОДРУБАЕМ ID ПОЛЬЗОВАТЕЛЯ
+                        text = "ID: " + sharedPreferencesManager.getVal("id")!!, //СЮДА ПОДРУБАЕМ ID ПОЛЬЗОВАТЕЛЯ
                         style = MaterialTheme.typography.h1,
                         fontSize = 26.sp
                     )
@@ -115,7 +122,9 @@ fun ProfileScreen() {
                         .width(200.dp)
                         .height(50.dp),
                     onClick = {
-                        //Выход из аккаунта
+                        sharedPreferencesManager.saveVal("token", "")
+                        activity.startActivity(Intent(context, LoginActivity::class.java))
+                        activity.finish()
                     },
                     colors = ButtonDefaults
                         .buttonColors(
@@ -133,32 +142,7 @@ fun ProfileScreen() {
             }
         }
     }
-    /* TODO:
-    делать тут не мало на самом деле
-    попробуй сделать ui пока
-    я не вывез
-    я пока подключил шарды умер
-    главная просьба наверн по ui
-    любой переход на другую страницу делай активностью, а не навграфами
-    так будет логичнее
-    а так, что тут за ui будет - думай сам
-    в плане
-    по идее, тут должен быть список кнопок по типу
-    профиль -> открывает активити с инфой о пользователе, которую можно поменять
-    друзья -> открывает активити с инфой о друзьях (просто список, оставь его пустым, я вью модель потом напишу)
-    хз, кнопка о нас -> оставь пока пустой
-    и кнопка выйти, тоже оставь пока пустой
-
-
-    еще мем
-    когда будешь переходить на другие активити, закрывай предыдущие через finish()
-
-    а, и постарайся сделать его больше модульным - то есть логически разбей на @composable функци, чтобы не было все в одном месте
-    в идеале даже на файлики разбить, чтобы каждая активность была в своем файлике
-    но тут как сам посчитаешь нужным
-     */
 }
-
 @Composable
 fun MenuCard(iconId: Int, title: String, onClick: () -> Unit) {
     Card(

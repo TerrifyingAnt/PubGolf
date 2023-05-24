@@ -2,6 +2,7 @@ package jg.com.pubgolf.ui.view.navigation.screens
 
 import jg.com.pubgolf.R
 import android.app.Activity
+import android.content.Context
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,12 +19,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import jg.com.pubgolf.utils.SharedPreferencesManager
 
 @Composable
 fun DetailProfileScreen() {
 
     val activity = LocalContext.current as Activity
-
+    val context = LocalContext.current
+    val sharedPreferencesManager = SharedPreferencesManager(context)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -39,82 +42,83 @@ fun DetailProfileScreen() {
                 })
         }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues = it)
-                .background(MaterialTheme.colors.background),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colors.primary)
-                    .height(165.dp)
-                    .padding(15.dp)
-                    .clip(RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp)),
-                horizontalArrangement = Arrangement.Center
+                    .fillMaxSize()
+                    .padding(paddingValues = it)
+                    .background(MaterialTheme.colors.background),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    //СЮДА ПОДРУБАЕМ ФОТКУ ПОЛЬЗОВАТЕЛЯ
-                    //Надо наверное будет сделать фото по дефолту, но мб потом
-                    painter = painterResource(id = R.drawable.shrek),
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
+                Row(
                     modifier = Modifier
-                        .size(150.dp)
-                        .clip(shape = RoundedCornerShape(10.dp))
-                        .clickable {
-                            //СМЕНА ФОТКИ
-                        }
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colors.primary)
+                        .height(165.dp)
+                        .padding(15.dp)
+                        .clip(RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp)),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        //СЮДА ПОДРУБАЕМ ФОТКУ ПОЛЬЗОВАТЕЛЯ
+                        //Надо наверное будет сделать фото по дефолту, но мб потом
+                        painter = painterResource(id = R.drawable.shrek),
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(150.dp)
+                            .clip(shape = RoundedCornerShape(10.dp))
+                            .clickable {
+                                //СМЕНА ФОТКИ
+                            }
+                    )
+                    Text(
+                        modifier = Modifier.padding(start = 10.dp),
+                        text = sharedPreferencesManager.getVal("id")!!, //СЮДА ПОДРУБАЕМ ID ПОЛЬЗОВАТЕЛЯ
+                        style = MaterialTheme.typography.h1,
+                        fontSize = 26.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                InfoCard(
+                    iconId = R.drawable.outline_account_circle_24,
+                    hint = "Логин",
+                    title = sharedPreferencesManager.getVal("username")!! //Сюда логин
                 )
-                Text(
-                    modifier = Modifier.padding(start = 10.dp),
-                    text = "ID:228", //СЮДА ПОДРУБАЕМ ID ПОЛЬЗОВАТЕЛЯ
-                    style = MaterialTheme.typography.h1,
-                    fontSize = 26.sp
+                InfoCard(
+                    iconId = R.drawable.baseline_alternate_email_24,
+                    hint = "Эл. почта",
+                    title = sharedPreferencesManager.getVal("email")!! //Сюда почту
                 )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            InfoCard(
-                iconId = R.drawable.outline_account_circle_24,
-                hint = "Логин",
-                title = "Shrek" //Сюда логин
-            )
-            InfoCard(
-                iconId = R.drawable.baseline_alternate_email_24,
-                hint = "Эл. почта",
-                title = "Shrek@boloto.com" //Сюда почту
-            )
-            InfoCard(
-                iconId = R.drawable.outline_phone_24,
-                hint = "Номер телефона",
-                title = "+7(933)-231-32-23" //Сюда номер телефона
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            Button(
-                modifier = Modifier
-                    .width(200.dp)
-                    .height(60.dp),
-                onClick = {
-                    //Изменить инфу об аккаунте
-                },
-                colors = ButtonDefaults
-                    .buttonColors(
-                        backgroundColor = MaterialTheme.colors.primary
-                    ),
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Text(
-                    text = "Изменить",
-                    style = MaterialTheme.typography.h1,
-                    color = Color.White,
-                    fontSize = 32.sp
+                InfoCard(
+                    iconId = R.drawable.outline_phone_24,
+                    hint = "Номер телефона",
+                    title = sharedPreferencesManager.getVal("phone_number")!! //Сюда номер телефона
                 )
-            }
-        }
+                Spacer(modifier = Modifier.height(30.dp))
+                Button(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(60.dp),
+                    onClick = {
+                        //Изменить инфу об аккаунте
+                    },
+                    colors = ButtonDefaults
+                        .buttonColors(
+                            backgroundColor = MaterialTheme.colors.primary
+                        ),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(
+                        text = "Изменить",
+                        style = MaterialTheme.typography.h1,
+                        color = Color.White,
+                        fontSize = 32.sp
+                    ) } }
     }
+
 }
+
+
 
 @Composable
 fun InfoCard(iconId: Int, hint: String, title: String) {

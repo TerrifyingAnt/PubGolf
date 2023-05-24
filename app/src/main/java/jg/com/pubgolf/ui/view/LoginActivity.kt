@@ -1,6 +1,7 @@
 package jg.com.pubgolf.ui.view
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -38,6 +39,7 @@ import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.AuthViewModel
 import jg.com.pubgolf.viewModel.ViewModelFactory
 import jg.com.pubgolf.viewModel.state.AuthState
+import jg.com.pubgolf.viewModel.state.MeState
 
 @AndroidEntryPoint
 class LoginActivity : ComponentActivity() {
@@ -58,15 +60,14 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferencesManager = SharedPreferencesManager(this)
-
         setContent {
             PubGolfTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background,
                 ) {
-                    LoginScreen(viewModel)
+                    sharedPreferencesManager = SharedPreferencesManager(LocalContext.current)
+                    LoginScreen(viewModel, sharedPreferencesManager)
                 }
             }
         }
@@ -74,7 +75,9 @@ class LoginActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginScreen(viewModel: AuthViewModel) {
+fun LoginScreen(viewModel: AuthViewModel, sharedPreferencesManager: SharedPreferencesManager) {
+
+
 
     // хранение логина
     val loginText = remember{mutableStateOf("")}
@@ -90,12 +93,15 @@ fun LoginScreen(viewModel: AuthViewModel) {
     // состояние ответа в вьюмоделе
     val state by viewModel.authState.collectAsState(initial = AuthState.Loading)
 
+
+
     // состояние пароля
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     // Запуск активити, если пришел норм результат
     LaunchedEffect(state) {
         if (state is AuthState.Success) {
+            viewModel.getMe()
             val intent = Intent(context, MainActivity::class.java)
             context.startActivity(intent)
         }
@@ -106,8 +112,9 @@ fun LoginScreen(viewModel: AuthViewModel) {
 
     Column(
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
-        .background(MaterialTheme.colors.background)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
     ) {
 
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
@@ -133,16 +140,13 @@ fun LoginScreen(viewModel: AuthViewModel) {
         }
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Достойно жить - Как пиво пить!",
+                "Не потребляй, а дегустируй!",
                 color = MaterialTheme.colors.primaryVariant,
                 style = MaterialTheme.typography.h4
             )
         }
         Spacer(modifier = Modifier.height(45.dp))
 
-        /*Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            Text("Добро пожаловть!")
-        }*/
         Spacer(modifier = Modifier.height(5.dp))
         // Поле ввода логина
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
@@ -195,9 +199,6 @@ fun LoginScreen(viewModel: AuthViewModel) {
                     .width(278.dp)
                     .height(50.dp),
                 onClick = {
-                    //для теста
-                    val intent = Intent(context, MainActivity::class.java)
-                    context.startActivity(intent)
                 if (loginText.value != "" && passwordText.value != "") {
                     val authRequest = AuthRequest(loginText.value, passwordText.value)
                     viewModel.authenticateUser(authRequest)
@@ -227,7 +228,7 @@ fun LoginScreen(viewModel: AuthViewModel) {
                     .width(278.dp)
                     .height(50.dp),
                 onClick = {
-                activity.startActivity(Intent(context, RegistrationActivity::class.java))
+                    activity.startActivity(Intent(context, RegistrationActivity::class.java))
                 },
                 colors = ButtonDefaults
                     .buttonColors(
