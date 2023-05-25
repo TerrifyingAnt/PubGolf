@@ -1,9 +1,12 @@
+from collections import defaultdict
+
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import viewsets, mixins, status, permissions, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api.pagination import GamesAndFriendsPagination
 from api.permissions import (
@@ -25,7 +28,7 @@ from api.serializers import (
 )
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
-from games.models import Game
+from games.models import Game, Stage
 
 
 class CustomUserViewSet(UserViewSet):
@@ -228,3 +231,50 @@ class GameViewSet(viewsets.ModelViewSet):
         ).delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class StartGameAPIView(APIView):
+    permission_classes = (PlayerPermission,)
+
+    def get(self, request, game_id):
+        game = get_object_or_404(
+            Game,
+            id=game_id
+        )
+        difficulty_level = game.difficulty_level
+        budget_level = game.budget_level
+
+        all_drinks = Menu.objects.all()
+        all_drinks_count = all_drinks.count()
+        interval = all_drinks_count / 3
+
+        ordered_by_alcohol = all_drinks.order_by('alcohol_percent')
+        if difficulty_level == 'underbeerman':
+            drinks = ordered_by_alcohol[:interval]
+        elif difficulty_level == 'fan':
+            drinks = ordered_by_alcohol[interval:2*interval]
+        elif difficulty_level == 'freelanholic':
+            drinks = ordered_by_alcohol[2*interval:]
+
+        ordered_by_cost = drinks.order_by('cost')
+        interval = interval / 3
+        if budget_level == 'homeless':
+            drinks = ordered_by_cost[:interval]
+        elif budget_level == 'fan':
+            drinks = ordered_by_cost[interval:2*interval]
+        elif budget_level == 'major':
+            drinks = ordered_by_cost[2*interval:]
+
+        # drinks = drinks.order_by('pub_id')
+        pubs_drinks = defaultdict(list)
+        for drink in drinks:
+            pubs_drinks[drink.pub_id].append(drink.id)
+
+        stages = []
+        for pub, drinks in pubs_drinks.items():
+            stages.append(
+                Stage.objects.create(
+                    game=game,
+                    pub=Pub.objects.get(id=int(pub))
+                )
+            )

@@ -1,5 +1,6 @@
 from django.db import models
 
+from pubs.models import Pub
 from users.models import CustomUser
 
 DIFFICULTY_LEVELS = (
@@ -72,36 +73,6 @@ class Game(models.Model):
         return self.name
 
 
-# class Invitation(models.Model):
-#     """Модель приглашения в комнату."""
-#
-#     sender = models.ForeignKey(
-#         CustomUser,
-#         on_delete=models.CASCADE,
-#         related_name='invitations_sent',
-#         verbose_name='Отправитель'
-#     )
-#     recipient = models.ForeignKey(
-#         CustomUser,
-#         on_delete=models.CASCADE,
-#         related_name='invitations_received',
-#         verbose_name='Получатель'
-#     )
-#     game = models.ForeignKey(
-#         Game,
-#         on_delete=models.CASCADE,
-#         verbose_name='Комната',
-#         related_name='invitations'
-#     )
-#
-#     class Meta:
-#         verbose_name = 'Приглашение в комнату'
-#         verbose_name_plural = 'Приглашения в комнату'
-#
-#     def __str__(self):
-#         return f'{self.sender} --- {self.recipient}'
-
-
 class GameUser(models.Model):
     user = models.ForeignKey(
         CustomUser,
@@ -132,7 +103,13 @@ class Stage(models.Model):
         Game,
         on_delete=models.CASCADE
     )
-    # pub = models.ForeignKey(
-    #     Pub,
-    #     on_delete=models.CASCADE
-    # )
+    pub = models.ForeignKey(
+        Pub,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        unique_together = ('game', 'pub')
+
+    def __str__(self):
+        return f'{self.game} --- {self.pub}'
