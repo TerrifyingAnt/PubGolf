@@ -1,0 +1,44 @@
+# Папка с зависимостями
+node_modules/
+
+# Скомпилированные файлы
+build/
+dist/
+
+# Локальные настройки среды разработки
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Файлы отладки
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Исключение файла с переменными окружения, если он используется
+!.env.example
+
+# Исключение папки с кэшем, если она используется
+.cache/
+
+# Исключение файла с отчетом о покрытии кода, если он используется
+coverage/
+
+# Исключение временных файлов
+*.swp
+*.bak
+*.tmp
+
+# Игнорировать файлы IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Игнорировать конфигурационные файлы для различных редакторов
+*.esproj
+*.eslintrc
+*.babelrc
+*.prettierrc
+*.stylelintrc
