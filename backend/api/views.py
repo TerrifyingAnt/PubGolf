@@ -2,7 +2,8 @@ from collections import defaultdict
 
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import viewsets, mixins, status, permissions, serializers
+from rest_framework import viewsets, mixins, status, permissions, serializers, \
+    generics
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
@@ -24,7 +25,7 @@ from api.serializers import (
     PubSerializer,
     MenuSerializer,
     GameSerializer,
-    GameCreateSerializer,
+    GameCreateSerializer, StageSerializer,
 )
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
@@ -233,7 +234,7 @@ class GameViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class StartGameAPIView(APIView):
+class StartGameAPIView(generics.RetrieveAPIView):
     permission_classes = (PlayerPermission,)
 
     def get(self, request, game_id):
@@ -278,3 +279,10 @@ class StartGameAPIView(APIView):
                     pub=Pub.objects.get(id=int(pub))
                 )
             )
+
+        serialized_stages = StageSerializer(stages, many=True).data
+
+        return Response(
+            data={'id': game.id, 'stages': serialized_stages},
+            status=status.HTTP_200_OK
+        )

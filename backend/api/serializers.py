@@ -9,7 +9,7 @@ from rest_framework.generics import get_object_or_404
 
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
-from games.models import Game, GameUser
+from games.models import Game, GameUser, Stage
 
 
 class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
@@ -157,6 +157,16 @@ class PubSerializer(serializers.ModelSerializer):
         )
 
 
+class PubInStageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Pub
+        fields = (
+            'name',
+            'pub_address'
+        )
+
+
 class MenuSerializer(serializers.ModelSerializer):
     pub = serializers.IntegerField(
         source='pub.id',
@@ -261,3 +271,28 @@ class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = '__all__'
+
+
+class MenuInStageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Menu
+        fields = (
+            'id',
+            'alcohol_name',
+            'alcohol_percent',
+            'cost'
+        )
+
+
+class StageSerializer(serializers.ModelSerializer):
+    pub = PubInStageSerializer(read_only=True)
+    drinks = MenuInStageSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Stage
+        fields = (
+            'id',
+            'pub',
+            'drinks'
+        )

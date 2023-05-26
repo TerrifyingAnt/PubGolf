@@ -12,6 +12,7 @@ from api.views import (
     PubViewSet,
     MenuViewSet,
     GameViewSet,
+    StartGameAPIView
 )
 
 router_v1 = DefaultRouter()
@@ -48,6 +49,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('v1/auth/', include('djoser.urls.authtoken')),
     path('v1/', include(router_v1.urls)),
+    path('v1/start', StartGameAPIView.as_view(), name='start_game'),
     path('v1/', include('djoser.urls.base')),
     path(
         'v1/redoc/',
