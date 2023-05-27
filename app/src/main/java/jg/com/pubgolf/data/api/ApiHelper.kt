@@ -26,5 +26,23 @@ class ApiHelper @Inject constructor(val apiService: ApiService, val sharedPrefer
 
     // получение информации о самом себе
     suspend fun getMe() = apiService.getMe("Token " + sharedPreferencesManager.getVal("token"))
+
+    // получение списка заявок в друзья
+    suspend fun getFriendsRequest() = apiService.getFriendsRequest("Token " + sharedPreferencesManager.getVal("token"))
+
+    // получение исходящих заявок
+    suspend fun getFriendsOutputRequest() = apiService.getFriendsOutputRequest("Token " + sharedPreferencesManager.getVal("token"))
+
+    // получение всех пользователей
+    suspend fun getAllUsers() = apiService.getAllUsers("Token " + sharedPreferencesManager.getVal("token"))
+
+    // отправление запроса на дружбу
+    suspend fun sendFriendRequest(userId: Int) = apiService.sendFriendRequest("Token " + sharedPreferencesManager.getVal("token"), userId)
+
+    // принятие запроса на дружбу
+    suspend fun acceptFriendRequest(userId: Int) = apiService.acceptFriendRequest("Token " + sharedPreferencesManager.getVal("token"), userId)
+
+    // удаление друга
+    suspend fun deleteFriend(userId: Int) = apiService.deleteFriend("Token " + sharedPreferencesManager.getVal("token"), userId)
 }
 

@@ -3,6 +3,7 @@ package jg.com.pubgolf.ui.view
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -23,6 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import jg.com.pubgolf.data.api.ApiHelper
 import jg.com.pubgolf.data.api.RetrofitBuilder
@@ -32,6 +36,7 @@ import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.AuthViewModel
 import jg.com.pubgolf.viewModel.ViewModelFactory
 import jg.com.pubgolf.viewModel.state.AuthState
+import jg.com.pubgolf.viewModel.state.FriendsRequestState
 import jg.com.pubgolf.viewModel.state.MeState
 
 @SuppressLint("CustomSplashScreen")
@@ -41,6 +46,14 @@ class SplashScreenActivity : ComponentActivity() {
     private lateinit var sharedPreferencesManager: SharedPreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+
+
         super.onCreate(savedInstanceState)
 
         setContent {
@@ -49,6 +62,10 @@ class SplashScreenActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background,
                 ) {
+
+                    val systemUiController: SystemUiController = rememberSystemUiController()
+                    systemUiController.isSystemBarsVisible = false
+
                     sharedPreferencesManager = SharedPreferencesManager(LocalContext.current)
                     val viewModel: AuthViewModel by viewModels {
                     ViewModelFactory(
@@ -84,6 +101,7 @@ class SplashScreenActivity : ComponentActivity() {
                                 }
                             }
                             is MeState.Success -> {
+
                                 startActivity(Intent(this, MainActivity::class.java))
                                 finish()
                             }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,6 +30,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import jg.com.pubgolf.R
 import jg.com.pubgolf.data.api.ApiHelper
@@ -56,6 +60,14 @@ class RegistrationActivity: ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+
+
         super.onCreate(savedInstanceState)
 
         sharedPreferencesManager = SharedPreferencesManager(this)
@@ -66,6 +78,8 @@ class RegistrationActivity: ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background,
                 ) {
+                    val systemUiController: SystemUiController = rememberSystemUiController()
+                    systemUiController.isSystemBarsVisible = false
                     RegistrationScreen(viewModel)
                 }
             }

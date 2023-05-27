@@ -1,10 +1,12 @@
 package jg.com.pubgolf.ui.view.navigation
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import android.view.WindowManager
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -14,21 +16,35 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import jg.com.pubgolf.ui.theme.Green500
+import jg.com.pubgolf.ui.theme.Purple200
+import jg.com.pubgolf.ui.theme.Red500
 import jg.com.pubgolf.ui.view.navigation.screens.HistoryScreen
 import jg.com.pubgolf.ui.view.navigation.screens.ProfileScreen
+import jg.com.pubgolf.viewModel.UserViewModel
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainNavigation() {
+fun MainNavigation(viewModel: UserViewModel) {
     val scaffoldState = rememberScaffoldState()
     val navController = rememberNavController()
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -51,7 +67,13 @@ fun MainNavigation() {
                         Здесь запускается новое активити
                         Но не трогай наверн пока, сам чуть позже сделаю
                  */
-            }) {
+            },
+                modifier = Modifier
+                    .border(
+                        width = 3.dp,
+                        color = Green500,
+                        shape = CircleShape
+                    )) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
             }
         },
@@ -85,7 +107,7 @@ fun MainNavigation() {
                     /* TODO
                         полагаю, что здесь будет профиль игрока
                      */
-                    ProfileScreen()
+                    ProfileScreen(viewModel)
                 }
             }
         }
@@ -143,3 +165,4 @@ private fun prepareBottomMenu(): List<BottomMenuItem> {
 
     return bottomMenuItemsList
 }
+

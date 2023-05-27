@@ -19,6 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import jg.com.pubgolf.ui.theme.Purple500
+import jg.com.pubgolf.ui.theme.Purple700
 import jg.com.pubgolf.utils.SharedPreferencesManager
 
 @Composable
@@ -42,13 +44,8 @@ fun DetailProfileScreen() {
                 })
         }
     ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues = it)
-                    .background(MaterialTheme.colors.background),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        Box(modifier = Modifier.fillMaxSize().background(Purple500)) {
+            Column {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -71,49 +68,66 @@ fun DetailProfileScreen() {
                                 //СМЕНА ФОТКИ
                             }
                     )
-                    Text(
-                        modifier = Modifier.padding(start = 10.dp),
-                        text = sharedPreferencesManager.getVal("id")!!, //СЮДА ПОДРУБАЕМ ID ПОЛЬЗОВАТЕЛЯ
-                        style = MaterialTheme.typography.h1,
-                        fontSize = 26.sp
-                    )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                InfoCard(
-                    iconId = R.drawable.outline_account_circle_24,
-                    hint = "Логин",
-                    title = sharedPreferencesManager.getVal("username")!! //Сюда логин
-                )
-                InfoCard(
-                    iconId = R.drawable.baseline_alternate_email_24,
-                    hint = "Эл. почта",
-                    title = sharedPreferencesManager.getVal("email")!! //Сюда почту
-                )
-                InfoCard(
-                    iconId = R.drawable.outline_phone_24,
-                    hint = "Номер телефона",
-                    title = sharedPreferencesManager.getVal("phone_number")!! //Сюда номер телефона
-                )
-                Spacer(modifier = Modifier.height(30.dp))
-                Button(
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(60.dp),
-                    onClick = {
-                        //Изменить инфу об аккаунте
-                    },
-                    colors = ButtonDefaults
-                        .buttonColors(
-                            backgroundColor = MaterialTheme.colors.primary
-                        ),
-                    shape = RoundedCornerShape(10.dp)
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(25.dp),
                 ) {
-                    Text(
-                        text = "Изменить",
-                        style = MaterialTheme.typography.h1,
-                        color = Color.White,
-                        fontSize = 32.sp
-                    ) } }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues = it)
+                            .background(MaterialTheme.colors.background),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        InfoCard(
+                            iconId = R.drawable.outline_account_circle_24,
+                            hint = "Логин",
+                            title = sharedPreferencesManager.getVal("username")!! //Сюда логин
+                        )
+                        InfoCard(
+                            iconId = R.drawable.baseline_alternate_email_24,
+                            hint = "Эл. почта",
+                            title = sharedPreferencesManager.getVal("email")!! //Сюда почту
+                        )
+                        InfoCard(
+                            iconId = R.drawable.outline_phone_24,
+                            hint = "Номер телефона",
+                            title = sharedPreferencesManager.getVal("phone_number")!! //Сюда номер телефона
+                        )
+                        Spacer(modifier = Modifier.height(30.dp))
+                        Column(
+                            modifier = Modifier.fillMaxHeight(),
+                            verticalArrangement = Arrangement.Bottom
+                        ) {
+                            Button(
+                                modifier = Modifier
+                                    .width(200.dp)
+                                    .height(50.dp),
+                                onClick = {
+                                    //Изменить инфу об аккаунте
+                                },
+                                colors = ButtonDefaults
+                                    .buttonColors(
+                                        backgroundColor = MaterialTheme.colors.primary
+                                    ),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text(
+                                    text = "ИЗМЕНИТЬ",
+                                    style = MaterialTheme.typography.h1,
+                                    color = Color.White,
+                                    fontSize = 28.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(100.dp))
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }
@@ -124,24 +138,28 @@ fun DetailProfileScreen() {
 fun InfoCard(iconId: Int, hint: String, title: String) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.8f)
             .height(85.dp)
             .padding(10.dp),
-        elevation = 0.dp
+        elevation = 10.dp,
+        shape = RoundedCornerShape(10.dp)
     ) {
-        Row() {
+        Row(modifier = Modifier.fillMaxWidth()) {
             Card(
                 modifier = Modifier
                     .padding(start = 10.dp, end = 10.dp)
                     .size(60.dp),
-                elevation = 2.dp,
-                shape = RoundedCornerShape(90.dp)
+                shape = RoundedCornerShape(90.dp),
+                border = BorderStroke(0.dp, Color.Transparent),
+                elevation = 0.dp
             ) {
                 Image(
                     modifier = Modifier.padding(5.dp),
-                    painter = painterResource(id = iconId), contentDescription = ""
+                    painter = painterResource(id = iconId),
+                    contentDescription = ""
                 )
             }
+
             Column(
 
             ) {
@@ -149,17 +167,17 @@ fun InfoCard(iconId: Int, hint: String, title: String) {
                     text = hint,
                     style = MaterialTheme.typography.h1,
                     fontSize = 16.sp,
-                    color = Color.LightGray
+                    color = Purple700
                 )
                 Text(
                     text = title,
                     style = MaterialTheme.typography.h1,
                     fontSize = 26.sp,
-                    color = MaterialTheme.colors.primaryVariant
+                    color = Purple500
                 )
                 Divider(
-                    modifier = Modifier.padding(end = 40.dp),
-                    color = MaterialTheme.colors.primary,
+                    modifier = Modifier.fillMaxWidth(0.8f),
+                    color = Purple500,
                     thickness = 1.dp
                 )
             }

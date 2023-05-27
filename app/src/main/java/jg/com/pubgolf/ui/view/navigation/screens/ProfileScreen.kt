@@ -2,15 +2,16 @@ package jg.com.pubgolf.ui.view.navigation.screens
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,17 +21,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import jg.com.pubgolf.R
-import jg.com.pubgolf.ui.view.AboutUsActivity
-import jg.com.pubgolf.ui.view.DetailProfileActivity
-import jg.com.pubgolf.ui.view.FriendsActivity
-import jg.com.pubgolf.ui.view.LoginActivity
+import jg.com.pubgolf.ui.theme.Purple500
+import jg.com.pubgolf.ui.view.*
 import jg.com.pubgolf.utils.SharedPreferencesManager
+import jg.com.pubgolf.viewModel.UserViewModel
+import jg.com.pubgolf.viewModel.state.FriendRequestState
+import jg.com.pubgolf.viewModel.state.FriendsRequestState
 
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(viewModel: UserViewModel) {
 
     val context = LocalContext.current
 
@@ -38,17 +39,23 @@ fun ProfileScreen() {
 
     val sharedPreferencesManager = SharedPreferencesManager(context)
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    val friendsRequestState by viewModel.friendsRequestState.collectAsState(initial = FriendsRequestState.Loading)
+    val friendsOutputRequestState by viewModel.friendsOutputRequestState.collectAsState(initial = FriendsRequestState.Loading)
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getFriendRequests()
+        viewModel.getFriendOutputRequests()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Purple500)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colors.primary),
-        ) {
+        Column(Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
-                horizontalArrangement = Arrangement.SpaceAround
+                horizontalArrangement = Arrangement.Center
             ) {
                 Image(
                     //СЮДА ПОДРУБАЕМ ФОТКУ ПОЛЬЗОВАТЕЛЯ
@@ -69,85 +76,117 @@ fun ProfileScreen() {
                 ) {
                     Text(
                         modifier = Modifier.padding(bottom = 5.dp),
-                        text = sharedPreferencesManager.getVal("username")!!, //СЮДА ПОДРУБАЕМ НИК ПОЛЬЗОВАТЕЛЯ
+                        text = "@" + sharedPreferencesManager.getVal("username")!!, //СЮДА ПОДРУБАЕМ НИК ПОЛЬЗОВАТЕЛЯ
                         style = MaterialTheme.typography.h1,
+                        color = Color.White,
                         fontSize = 26.sp
                     )
                     Text(
                         modifier = Modifier.padding(top = 5.dp),
                         text = "ID: " + sharedPreferencesManager.getVal("id")!!, //СЮДА ПОДРУБАЕМ ID ПОЛЬЗОВАТЕЛЯ
                         style = MaterialTheme.typography.h1,
+                        color = Color.White,
                         fontSize = 26.sp
                     )
                 }
-                Icon(
-                    modifier = Modifier
-                        .padding(start = 10.dp, top = 12.dp)
-                        .size(28.dp)
-                        .clickable {
-                            //СМЕНА НИКА, МБ ДЛЯ ПРОСТОТЫ ПРОСТО ОТКРЫВАТЬ ДИАЛОГОВОЕ ОКНО
-                            //ИЛИ КАК ОНО ТАМ НАЗЫВАЕТСЯ
-                        },
-                    painter = painterResource(id = R.drawable.baseline_edit_24),
-                    contentDescription = "",
-                    tint = MaterialTheme.colors.primaryVariant
-                )
             }
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Surface(
+                shape = RoundedCornerShape(5),
+                elevation = 10.dp
             ) {
-                MenuCard(iconId = R.drawable.baseline_manage_accounts_24, title = "Профиль") {
-                    //Активити с настройками профиля и более подробной инфой
-                    context.startActivity(Intent(context, DetailProfileActivity::class.java))
-                    //activity.finish()
-                }
-                MenuCard(iconId = R.drawable.baseline_people_24, title = "Друзья") {
-                    context.startActivity(Intent(context, FriendsActivity::class.java))
-                    //Активити с друзьями
-                }
-                //RIP 22.05.2023 КНОПКА С ДОСТИЖЕНИЯМИ
-                MenuCard(iconId = R.drawable.baseline_info_24, title = "О нас") {
-                    context.startActivity(Intent(context, AboutUsActivity::class.java))
-                    //Активити "О нас"
-                }
-                Button(
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(50.dp),
-                    onClick = {
-                        sharedPreferencesManager.saveVal("token", "")
-                        activity.startActivity(Intent(context, LoginActivity::class.java))
-                        activity.finish()
-                    },
-                    colors = ButtonDefaults
-                        .buttonColors(
-                            backgroundColor = MaterialTheme.colors.primary
-                        ),
-                    shape = RoundedCornerShape(10.dp)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "ВЫЙТИ",
-                        style = MaterialTheme.typography.h1,
-                        color = Color.White,
-                        fontSize = 28.sp
-                    )
+                    MenuCard(
+                        iconId = R.drawable.baseline_manage_accounts_24,
+                        title = "Профиль"
+                    ) {
+                        //Активити с настройками профиля и более подробной инфой
+                        context.startActivity(
+                            Intent(
+                                context,
+                                DetailProfileActivity::class.java
+                            )
+                        )
+                        //activity.finish()
+                    }
+                    MenuCard(iconId = R.drawable.baseline_people_24, title = "Друзья") {
+                        context.startActivity(Intent(context, FriendsActivity::class.java))
+                        //Активити с друзьями
+                    }
+                    //RIP 22.05.2023 КНОПКА С ДОСТИЖЕНИЯМИ
+
+                    var requestTitle = "Мои заявки"
+                    if(friendsRequestState is FriendsRequestState.Success) {
+                        if(viewModel.friendsRequestList.isNotEmpty())
+                            requestTitle += ": " + viewModel.friendsRequestList.size
+                     }
+                    else {
+                        requestTitle = "Мои заявки"
+                    }
+                    MenuCard(
+                        iconId = R.drawable.baseline_person_add_alt_1_24,
+                        title = requestTitle
+                    ) {
+                        context.startActivity(
+                            Intent(
+                                context,
+                                FriendsRequestActivity::class.java
+                            )
+                        )
+                        //Активити "О нас"
+                    }
+
+                    MenuCard(iconId = R.drawable.baseline_info_24, title = "О нас") {
+                        context.startActivity(Intent(context, AboutUsActivity::class.java))
+                        //Активити "О нас"
+                    }
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        Button(
+                            modifier = Modifier
+                                .width(200.dp)
+                                .height(50.dp),
+                            onClick = {
+                                sharedPreferencesManager.saveVal("token", "")
+                                activity.startActivity(
+                                    Intent(
+                                        context,
+                                        LoginActivity::class.java
+                                    )
+                                )
+                                activity.finish()
+                            },
+                            colors = ButtonDefaults
+                                .buttonColors(
+                                    backgroundColor = MaterialTheme.colors.primary
+                                ),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(
+                                text = "ВЫЙТИ",
+                                style = MaterialTheme.typography.h1,
+                                color = Color.White,
+                                fontSize = 28.sp
+                            )
+                        }
+                        Spacer(Modifier.height(100.dp))
+                    }
+
                 }
             }
         }
     }
 }
+
 @Composable
 fun MenuCard(iconId: Int, title: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.9f)
             .height(80.dp)
             .padding(8.dp)
             .background(MaterialTheme.colors.background),
@@ -167,20 +206,19 @@ fun MenuCard(iconId: Int, title: String, onClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth()
-                //horizontalArrangement = Arrangement.SpaceAround
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(
                     modifier = Modifier.size(35.dp),
                     painter = painterResource(id = iconId),
                     contentDescription = "",
-                    tint = MaterialTheme.colors.primaryVariant
+                    tint = Purple500
                 )
                 Text(
                     modifier = Modifier.padding(start = 16.dp),
                     text = title,
                     style = MaterialTheme.typography.h1,
-                    color = MaterialTheme.colors.primaryVariant,
+                    color = Purple500,
                     fontSize = 32.sp
                 )
             }
