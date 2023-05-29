@@ -78,6 +78,13 @@
             android:exported="true">
         </activity>
 
+        <activity
+            android:name=".ui.view.DetailFriendActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:exported="true">
+        </activity>
+
 
     </application>
 

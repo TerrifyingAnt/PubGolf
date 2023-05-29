@@ -27,7 +27,7 @@ fun outputRequests(viewModel: UserViewModel) {
         viewModel.getFriendOutputRequests()
     }
 
-    // TODO: нормальную карточку исходящего запроса, и мб картинку, сли запросов нет
+    // TODO: нормальную карточку исходящего запроса, и мб картинку, если запросов нет
     // все запросы исходящие находятся в списке viewModel.friendsOutputRequestList
     if(friendsRequestState is FriendsRequestState.Success) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {

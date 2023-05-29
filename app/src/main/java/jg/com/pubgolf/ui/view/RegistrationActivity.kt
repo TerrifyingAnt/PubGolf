@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -215,7 +216,7 @@ fun RegistrationScreen(viewModel: AuthViewModel) {
             ) {
                 Text(
                     "Зарегистрироваться",
-                    color = MaterialTheme.colors.primaryVariant,
+                    color = Color.White,
                     style = MaterialTheme.typography.h1,
                     fontSize = 16.sp
                 )
@@ -241,7 +242,7 @@ fun RegistrationScreen(viewModel: AuthViewModel) {
             ) {
                 Text(
                     "У меня уже есть аккаунт",
-                    color = MaterialTheme.colors.primaryVariant,
+                    color = Color.White,
                     style = MaterialTheme.typography.h1,
                     fontSize = 16.sp
                 )

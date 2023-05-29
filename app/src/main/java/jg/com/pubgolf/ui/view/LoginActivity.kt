@@ -156,7 +156,8 @@ fun LoginScreen(viewModel: AuthViewModel, sharedPreferencesManager: SharedPrefer
             Text(
                 "Не потребляй, а дегустируй!",
                 color = MaterialTheme.colors.primaryVariant,
-                style = MaterialTheme.typography.h4
+                style = MaterialTheme.typography.h4,
+                fontSize = 20.sp
             )
         }
         Spacer(modifier = Modifier.height(45.dp))
@@ -226,7 +227,7 @@ fun LoginScreen(viewModel: AuthViewModel, sharedPreferencesManager: SharedPrefer
             ) {
                 Text(
                     "Войти",
-                    color = MaterialTheme.colors.primaryVariant,
+                    color = Color.White,
                     style = MaterialTheme.typography.h1,
                     fontSize = 16.sp
                 )
@@ -252,9 +253,10 @@ fun LoginScreen(viewModel: AuthViewModel, sharedPreferencesManager: SharedPrefer
             ) {
                 Text(
                     "Зарегистрироваться",
-                    color = MaterialTheme.colors.primaryVariant,
+                    color = Color.White,
                     style = MaterialTheme.typography.h1,
-                    fontSize = 16.sp)
+                    fontSize = 16.sp,
+                )
             }
         }
     }
