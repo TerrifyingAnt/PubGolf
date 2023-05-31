@@ -26,7 +26,7 @@ class Pub(models.Model):
         verbose_name_plural = 'Пабы'
 
     def __str__(self):
-        return self.company.username
+        return f'{self.company.username} --- {self.name}'
 
 
 class Menu(models.Model):

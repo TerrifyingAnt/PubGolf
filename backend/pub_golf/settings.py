@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'drf_yasg',
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
@@ -43,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'pub_golf.urls'
@@ -135,3 +137,5 @@ DJOSER = {
         'user_list': ['api.permissions.ReadOnlyPermission'],
     },
 }
+
+CORS_ALLOW_ALL_ORIGINS = True
