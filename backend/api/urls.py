@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
@@ -48,8 +48,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('v1/auth/', include('djoser.urls.authtoken')),
+    re_path(r'v1/games/(?P<game_id>\d+)/start', StartGameAPIView.as_view(), name='start_game'),
     path('v1/', include(router_v1.urls)),
-    path('v1/start', StartGameAPIView.as_view(), name='start_game'),
     path('v1/', include('djoser.urls.base')),
     path(
         'v1/redoc/',

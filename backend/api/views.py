@@ -240,7 +240,7 @@ class StartGameAPIView(generics.RetrieveAPIView):
     def get(self, request, game_id):
         game = get_object_or_404(
             Game,
-            id=game_id
+            id=int(game_id)
         )
         difficulty_level = game.difficulty_level
         budget_level = game.budget_level
