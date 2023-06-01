@@ -9,7 +9,7 @@ from rest_framework.generics import get_object_or_404
 
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
-from games.models import Game, GameUser, Stage
+from games.models import Game, GameUser, Stage, StageMenu
 
 
 class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
@@ -287,7 +287,7 @@ class MenuInStageSerializer(serializers.ModelSerializer):
 
 class StageSerializer(serializers.ModelSerializer):
     pub = PubInStageSerializer(read_only=True)
-    drinks = MenuInStageSerializer(read_only=True, many=True)
+    drinks = serializers.SerializerMethodField()
 
     class Meta:
         model = Stage
@@ -296,3 +296,11 @@ class StageSerializer(serializers.ModelSerializer):
             'pub',
             'drinks'
         )
+
+    def get_drinks(self, obj):
+        drinks_ids = StageMenu.objects.filter(
+            stage=obj
+        ).values_list('drink_id')
+        drinks = Menu.objects.filter(id__in=drinks_ids)
+
+        return MenuInStageSerializer(drinks, many=True).data

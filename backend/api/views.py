@@ -29,7 +29,7 @@ from api.serializers import (
 )
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
-from games.models import Game, Stage
+from games.models import Game, Stage, StageMenu
 
 
 class CustomUserViewSet(UserViewSet):
@@ -242,6 +242,13 @@ class StartGameAPIView(generics.RetrieveAPIView):
             Game,
             id=int(game_id)
         )
+
+        if game.status != 'created':
+            return Response(
+                data={'detail': 'Игра уже начата или завершена.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         difficulty_level = game.difficulty_level
         budget_level = game.budget_level
 
@@ -251,28 +258,36 @@ class StartGameAPIView(generics.RetrieveAPIView):
 
         ordered_by_alcohol = all_drinks.order_by('alcohol_percent')
         if difficulty_level == 'underbeerman':
-            drinks = ordered_by_alcohol[:interval]
+            drinks_ids = ordered_by_alcohol[
+                :interval
+            ].values_list('id', flat=True)
         elif difficulty_level == 'fan':
-            drinks = ordered_by_alcohol[interval:2*interval]
+            drinks_ids = ordered_by_alcohol[
+                interval:2*interval
+                         ].values_list('id', flat=True)
         elif difficulty_level == 'freelanholic':
-            drinks = ordered_by_alcohol[2*interval:]
+            drinks_ids = ordered_by_alcohol[
+                2*interval:
+                         ].values_list('id', flat=True)
 
-        ordered_by_cost = drinks.order_by('cost')
+        ordered_by_cost = Menu.objects.filter(
+            id__in=drinks_ids
+        ).order_by('cost')
+
         interval = interval / 3
         if budget_level == 'homeless':
             drinks = ordered_by_cost[:interval]
         elif budget_level == 'fan':
-            drinks = ordered_by_cost[interval:2*interval]
+            drinks = ordered_by_cost[interval:2 * interval]
         elif budget_level == 'major':
-            drinks = ordered_by_cost[2*interval:]
+            drinks = ordered_by_cost[2 * interval:]
 
-        # drinks = drinks.order_by('pub_id')
         pubs_drinks = defaultdict(list)
         for drink in drinks:
             pubs_drinks[drink.pub_id].append(drink.id)
 
         stages = []
-        for pub, drinks in pubs_drinks.items():
+        for pub, pub_drinks in pubs_drinks.items():
             stages.append(
                 Stage.objects.create(
                     game=game,
@@ -280,7 +295,18 @@ class StartGameAPIView(generics.RetrieveAPIView):
                 )
             )
 
+        for stage in stages:
+            for drink in drinks:
+                if stage.pub_id == drink.pub_id:
+                    StageMenu.objects.create(
+                        stage=stage,
+                        drink=drink
+                    )
+
         serialized_stages = StageSerializer(stages, many=True).data
+
+        game.status = 'started'
+        game.save()
 
         return Response(
             data={'id': game.id, 'stages': serialized_stages},

@@ -1,6 +1,6 @@
 from django.db import models
 
-from pubs.models import Pub
+from pubs.models import Pub, Menu
 from users.models import CustomUser
 
 DIFFICULTY_LEVELS = (
@@ -113,3 +113,20 @@ class Stage(models.Model):
 
     def __str__(self):
         return f'{self.game} --- {self.pub}'
+
+
+class StageMenu(models.Model):
+    stage = models.ForeignKey(
+        Stage,
+        on_delete=models.CASCADE
+    )
+    drink = models.ForeignKey(
+        Menu,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        unique_together = ('stage', 'drink')
+
+    def __str__(self):
+        return f'{self.stage} --- {self.drink}'
