@@ -2,12 +2,17 @@ from collections import defaultdict
 
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import viewsets, mixins, status, permissions, serializers, \
+from rest_framework import (
+    viewsets,
+    mixins,
+    status,
+    permissions,
+    serializers,
     generics
+)
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from api.pagination import GamesAndFriendsPagination
 from api.permissions import (
@@ -25,11 +30,13 @@ from api.serializers import (
     PubSerializer,
     MenuSerializer,
     GameSerializer,
-    GameCreateSerializer, StageSerializer,
+    GameCreateSerializer,
+    StageSerializer,
+    FinishGameSerializer,
 )
 from users.models import CustomUser, FriendshipRequest
 from pubs.models import Pub, Menu
-from games.models import Game, Stage, StageMenu
+from games.models import Game, Stage, StageMenu, GameUser
 
 
 class CustomUserViewSet(UserViewSet):
@@ -310,5 +317,37 @@ class StartGameAPIView(generics.RetrieveAPIView):
 
         return Response(
             data={'id': game.id, 'stages': serialized_stages},
+            status=status.HTTP_200_OK
+        )
+
+
+class FinishGameAPIView(generics.CreateAPIView):
+    permission_classes = (PlayerPermission,)
+    serializer_class = FinishGameSerializer
+
+    def post(self, request, game_id):
+        games_users = GameUser.objects.filter(game_id=game_id)
+
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        serialized_stats = serializer.data
+
+        for stat in serialized_stats:
+            game_user = games_users.get(
+                user_id=stat.get('user')
+            )
+            game_user.player_status = stat.get('player_status')
+            game_user.save()
+
+        game = get_object_or_404(
+            Game,
+            id=int(game_id)
+        )
+        game.status = 'finished'
+        game.save()
+
+        return Response(
+            data=serialized_stats,
             status=status.HTTP_200_OK
         )

@@ -304,3 +304,9 @@ class StageSerializer(serializers.ModelSerializer):
         drinks = Menu.objects.filter(id__in=drinks_ids)
 
         return MenuInStageSerializer(drinks, many=True).data
+
+
+class FinishGameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GameUser
+        fields = ('user', 'player_status')
