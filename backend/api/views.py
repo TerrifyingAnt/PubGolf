@@ -1,3 +1,4 @@
+import datetime as dt
 from collections import defaultdict
 
 from django.shortcuts import get_object_or_404
@@ -312,6 +313,7 @@ class StartGameAPIView(generics.RetrieveAPIView):
 
         serialized_stages = StageSerializer(stages, many=True).data
 
+        game.start_time = dt.datetime.now()
         game.status = 'started'
         game.save()
 
@@ -344,6 +346,7 @@ class FinishGameAPIView(generics.CreateAPIView):
             Game,
             id=int(game_id)
         )
+        game.finish_time = dt.datetime.now()
         game.status = 'finished'
         game.save()
 
