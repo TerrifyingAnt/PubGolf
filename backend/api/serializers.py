@@ -266,13 +266,6 @@ class GameCreateSerializer(serializers.ModelSerializer):
         return instance
 
 
-class GameSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Game
-        fields = '__all__'
-
-
 class MenuInStageSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -310,3 +303,17 @@ class FinishGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = GameUser
         fields = ('user', 'player_status')
+
+
+class GameSerializer(serializers.ModelSerializer):
+    stats = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Game
+        exclude = ('players',)
+
+    def get_stats(self, obj):
+        return FinishGameSerializer(
+            GameUser.objects.filter(game=obj),
+            many=True
+        ).data

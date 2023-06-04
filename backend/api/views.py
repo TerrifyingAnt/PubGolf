@@ -221,7 +221,6 @@ class MenuViewSet(
 
 
 class GameViewSet(viewsets.ModelViewSet):
-    serializer_class = GameCreateSerializer
     permission_classes = (PlayerPermission,)
 
     def get_serializer_class(self):
