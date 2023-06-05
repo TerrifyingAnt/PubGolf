@@ -1,7 +1,6 @@
 package jg.com.pubgolf.ui.view
 
 import android.os.Bundle
-import android.view.MotionEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,7 +20,7 @@ import jg.com.pubgolf.data.api.RetrofitBuilder
 import jg.com.pubgolf.ui.theme.PubGolfTheme
 import jg.com.pubgolf.ui.view.navigation.MainNavigation
 import jg.com.pubgolf.utils.SharedPreferencesManager
-import jg.com.pubgolf.viewModel.AuthViewModel
+import jg.com.pubgolf.viewModel.GameViewModel
 import jg.com.pubgolf.viewModel.UserViewModel
 import jg.com.pubgolf.viewModel.ViewModelFactory
 
@@ -33,6 +32,15 @@ class MainActivity : ComponentActivity() {
 
     // viewModel пользователя
     private val viewModel: UserViewModel by viewModels {
+        ViewModelFactory(
+            ApiHelper(
+                RetrofitBuilder.provideApiService(RetrofitBuilder.provideRetrofit()),
+                sharedPreferencesManager
+            )
+        )
+    }
+
+    private val gameViewModel: GameViewModel by viewModels {
         ViewModelFactory(
             ApiHelper(
                 RetrofitBuilder.provideApiService(RetrofitBuilder.provideRetrofit()),
@@ -64,7 +72,7 @@ class MainActivity : ComponentActivity() {
                         sharedPreferencesManager = SharedPreferencesManager(LocalContext.current)
                         val systemUiController: SystemUiController = rememberSystemUiController()
                         systemUiController.isSystemBarsVisible = false
-                        MainNavigation(viewModel)
+                        MainNavigation(viewModel, gameViewModel)
                     }
                 }
         }

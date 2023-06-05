@@ -2,7 +2,6 @@ package jg.com.pubgolf.ui.view.navigation.screens
 
 import jg.com.pubgolf.R
 import android.app.Activity
-import android.content.Context
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

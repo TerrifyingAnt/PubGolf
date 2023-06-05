@@ -2,7 +2,6 @@ package jg.com.pubgolf.ui.view.navigation.screens
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat.startActivity
 import com.google.gson.Gson
 import jg.com.pubgolf.R
 import jg.com.pubgolf.data.model.FriendModels.FriendRequestResponse
@@ -34,7 +32,6 @@ import jg.com.pubgolf.ui.theme.Green500
 import jg.com.pubgolf.ui.theme.Purple500
 import jg.com.pubgolf.ui.theme.Red500
 import jg.com.pubgolf.ui.view.DetailFriendActivity
-import jg.com.pubgolf.ui.view.MainActivity
 import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.UserViewModel
 import jg.com.pubgolf.viewModel.state.FriendState

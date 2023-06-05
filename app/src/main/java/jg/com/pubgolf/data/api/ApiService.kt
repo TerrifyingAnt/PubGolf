@@ -4,11 +4,12 @@ import jg.com.pubgolf.data.model.AuthModels.AuthRequest
 import jg.com.pubgolf.data.model.AuthModels.AuthResponse
 import jg.com.pubgolf.data.model.FriendModels.FriendRequestResponse
 import jg.com.pubgolf.data.model.FriendModels.FriendResponse
+import jg.com.pubgolf.data.model.GameModels.NewGameRequest
+import jg.com.pubgolf.data.model.GameModels.NewGameResponse
+import jg.com.pubgolf.data.model.GameModels.GameResponse
 import jg.com.pubgolf.data.model.MeResponse
-import jg.com.pubgolf.data.model.MeResponseList
 import jg.com.pubgolf.data.model.RegisterationModels.RegistrationRequest
 import jg.com.pubgolf.data.model.RegisterationModels.UserInfoResponse
-import retrofit2.Call
 import retrofit2.http.*
 
 
@@ -33,15 +34,30 @@ interface ApiService {
     suspend fun getFriendsOutputRequest(@Header("Authorization") token: String): List<FriendRequestResponse>
 
     @GET("users/")
-    suspend fun getAllUsers(@Header("Authorization") token: String) : List<FriendResponse>
+    suspend fun getAllUsers(@Header("Authorization") token: String): List<FriendResponse>
 
     @POST("users/{userId}/friend/")
-    suspend fun sendFriendRequest(@Header("Authorization") token: String, @Path("userId") userId: Int) : FriendRequestResponse
+    suspend fun sendFriendRequest(
+        @Header("Authorization") token: String,
+        @Path("userId") userId: Int
+    ): FriendRequestResponse
 
 
     @POST("users/friendship-requests/{id}/accept/")
-    suspend fun acceptFriendRequest(@Header("Authorization") token: String, @Path("id") userId: Int): FriendRequestResponse
+    suspend fun acceptFriendRequest(
+        @Header("Authorization") token: String,
+        @Path("id") userId: Int
+    ): FriendRequestResponse
 
     @DELETE("users/friends/{id}/delete/")
     suspend fun deleteFriend(@Header("Authorization") token: String, @Path("id") userId: Int)
+
+    @GET("games/")
+    suspend fun getAllGames(@Header("Authorization") token: String): List<GameResponse>
+
+    @POST("games/")
+    suspend fun createGame(
+        @Header("Authorization") token: String,
+        @Body request: NewGameRequest
+    ): NewGameResponse
 }

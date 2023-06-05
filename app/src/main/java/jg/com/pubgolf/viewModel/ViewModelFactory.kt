@@ -21,6 +21,11 @@ class ViewModelFactory @Inject constructor(private val apiHelper: ApiHelper) : V
             return UserViewModel(apiHelper, apiHelper.sharedPreferencesManager) as T
         }
 
+        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return GameViewModel(apiHelper, apiHelper.sharedPreferencesManager) as T
+        }
+
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

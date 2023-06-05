@@ -26,7 +26,6 @@ import jg.com.pubgolf.ui.theme.Purple500
 import jg.com.pubgolf.ui.view.*
 import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.UserViewModel
-import jg.com.pubgolf.viewModel.state.FriendRequestState
 import jg.com.pubgolf.viewModel.state.FriendsRequestState
 
 

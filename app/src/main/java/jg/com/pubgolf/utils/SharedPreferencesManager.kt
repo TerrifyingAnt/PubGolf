@@ -2,14 +2,10 @@ package jg.com.pubgolf.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jg.com.pubgolf.R
-import jg.com.pubgolf.data.model.FriendModels.FriendResponse
 import jg.com.pubgolf.data.model.MeResponse
-import jg.com.pubgolf.data.model.RegisterationModels.RegistrationRequest
 import jg.com.pubgolf.data.model.RegisterationModels.UserInfoResponse
-import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -1,7 +1,6 @@
 package jg.com.pubgolf.ui.view
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
@@ -43,7 +42,6 @@ import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.AuthViewModel
 import jg.com.pubgolf.viewModel.ViewModelFactory
 import jg.com.pubgolf.viewModel.state.AuthState
-import jg.com.pubgolf.viewModel.state.MeState
 
 @AndroidEntryPoint
 class LoginActivity : ComponentActivity() {

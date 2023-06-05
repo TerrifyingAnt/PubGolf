@@ -18,7 +18,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,12 +30,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import jg.com.pubgolf.data.api.ApiHelper
 import jg.com.pubgolf.data.api.RetrofitBuilder
 import jg.com.pubgolf.ui.theme.PubGolfTheme
-import jg.com.pubgolf.ui.view.navigation.MainNavigation
 import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.AuthViewModel
 import jg.com.pubgolf.viewModel.ViewModelFactory
-import jg.com.pubgolf.viewModel.state.AuthState
-import jg.com.pubgolf.viewModel.state.FriendsRequestState
 import jg.com.pubgolf.viewModel.state.MeState
 
 @SuppressLint("CustomSplashScreen")

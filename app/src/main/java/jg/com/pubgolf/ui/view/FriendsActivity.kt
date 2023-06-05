@@ -1,7 +1,5 @@
 package jg.com.pubgolf.ui.view
 
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
@@ -24,10 +22,8 @@ import jg.com.pubgolf.data.api.RetrofitBuilder
 import jg.com.pubgolf.ui.theme.PubGolfTheme
 import jg.com.pubgolf.ui.view.navigation.screens.FriendsScreen
 import jg.com.pubgolf.utils.SharedPreferencesManager
-import jg.com.pubgolf.viewModel.AuthViewModel
 import jg.com.pubgolf.viewModel.UserViewModel
 import jg.com.pubgolf.viewModel.ViewModelFactory
-import jg.com.pubgolf.viewModel.state.AuthState
 import jg.com.pubgolf.viewModel.state.FriendState
 import jg.com.pubgolf.viewModel.state.FriendsRequestState
 
