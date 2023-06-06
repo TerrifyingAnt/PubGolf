@@ -6,12 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jg.com.pubgolf.data.api.ApiHelper
-import jg.com.pubgolf.data.model.GameModels.GameResponse
-import jg.com.pubgolf.data.model.GameModels.NewGameRequest
+import jg.com.pubgolf.data.model.GameModels.*
 import jg.com.pubgolf.utils.SharedPreferencesManager
-import jg.com.pubgolf.viewModel.state.FriendRequestState
-import jg.com.pubgolf.viewModel.state.NewGameState
-import jg.com.pubgolf.viewModel.state.GameState
+import jg.com.pubgolf.viewModel.state.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -33,6 +30,15 @@ class GameViewModel @Inject constructor(
     private val _newGameState = MutableStateFlow<NewGameState>(NewGameState.Loading)
     val newGameState: StateFlow<NewGameState> = _newGameState
 
+    private val _finishGameState = MutableStateFlow<FinishGameState>(FinishGameState.Loading)
+    val finishGameState: StateFlow<FinishGameState> = _finishGameState
+
+    private val _startGameState = MutableStateFlow<StartGameState>(StartGameState.Loading)
+    val startGameState: StateFlow<StartGameState> = _startGameState
+    private val _startGameInfo = MutableStateFlow(StartGameResponse(0, emptyList()))
+    val startGameInfo: StartGameResponse
+        get() = _startGameInfo.value
+
     // получить все игры
     fun getGames() {
         viewModelScope.launch {
@@ -51,12 +57,33 @@ class GameViewModel @Inject constructor(
             _newGameState.value = NewGameState.Loading
             try {
                 val newGameRequest = apiHelper.createGame(request)
-                Log.d("penis2", newGameRequest.toString())
-                Log.d("penis2", request.toString())
-                Log.d("penis2", newGameState.toString())
                 _newGameState.value = NewGameState.Success(newGameRequest)
             } catch (e: Exception) {
                 _newGameState.value = NewGameState.Error(e.message ?: "Возникла ошибка")
+            }
+        }
+    }
+
+    fun startGame(gameId: Int){
+        viewModelScope.launch {
+            _startGameState.value = StartGameState.Loading
+            try {
+                _startGameInfo.value = apiHelper.startGame(gameId)
+                _startGameState.value = StartGameState.Success(startGameInfo)
+            } catch (e: Exception) {
+                _startGameState.value = StartGameState.Error(e.message ?: "Возникла ошибка")
+            }
+        }
+    }
+
+    fun finishGame(request: List<User>, gameId: Int) {
+        viewModelScope.launch {
+            _finishGameState.value = FinishGameState.Loading
+            try {
+                val finishGameRequest = apiHelper.finishGame(request, gameId)
+                _finishGameState.value = FinishGameState.Success(finishGameRequest)
+            } catch (e: Exception) {
+                _finishGameState.value = FinishGameState.Error(e.message ?: "Возникла ошибка")
             }
         }
     }

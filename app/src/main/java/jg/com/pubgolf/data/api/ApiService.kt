@@ -4,9 +4,7 @@ import jg.com.pubgolf.data.model.AuthModels.AuthRequest
 import jg.com.pubgolf.data.model.AuthModels.AuthResponse
 import jg.com.pubgolf.data.model.FriendModels.FriendRequestResponse
 import jg.com.pubgolf.data.model.FriendModels.FriendResponse
-import jg.com.pubgolf.data.model.GameModels.NewGameRequest
-import jg.com.pubgolf.data.model.GameModels.NewGameResponse
-import jg.com.pubgolf.data.model.GameModels.GameResponse
+import jg.com.pubgolf.data.model.GameModels.*
 import jg.com.pubgolf.data.model.MeResponse
 import jg.com.pubgolf.data.model.RegisterationModels.RegistrationRequest
 import jg.com.pubgolf.data.model.RegisterationModels.UserInfoResponse
@@ -60,4 +58,17 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: NewGameRequest
     ): NewGameResponse
+
+    @GET("games/{id}/start")
+    suspend fun startGame(
+        @Header("Authorization") token: String,
+        @Path("id") gameId: Int
+    ): StartGameResponse
+
+    @POST("games/{id}/finish")
+    suspend fun finishGame(
+        @Header("Authorization") token: String,
+        @Path("id") gameId: Int,
+        @Body request: List<User>
+    ): List<User>
 }

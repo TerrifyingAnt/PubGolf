@@ -2,6 +2,7 @@ package jg.com.pubgolf.ui.view.navigation.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -25,15 +26,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.gson.Gson
 import jg.com.pubgolf.R
 import jg.com.pubgolf.data.model.FriendModels.FriendResponse
 import jg.com.pubgolf.data.model.GameModels.NewGameRequest
 import jg.com.pubgolf.ui.theme.Purple500
+import jg.com.pubgolf.ui.view.DetailFriendActivity
+import jg.com.pubgolf.ui.view.GameActivity
 import jg.com.pubgolf.utils.SharedPreferencesManager
 import jg.com.pubgolf.viewModel.GameViewModel
 import jg.com.pubgolf.viewModel.UserViewModel
 import jg.com.pubgolf.viewModel.state.FriendState
 import jg.com.pubgolf.viewModel.state.NewGameState
+import jg.com.pubgolf.viewModel.state.StartGameState
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -66,7 +71,6 @@ fun CreateGameScreen(userViewModel: UserViewModel, gameViewModel: GameViewModel)
 
             }
             is NewGameState.Success -> {
-                //TODO Закидывать в игру
                 activity.finish()
                 Toast.makeText(context, "Игра создана", Toast.LENGTH_LONG).show()
             }
@@ -147,9 +151,7 @@ fun CreateGameScreen(userViewModel: UserViewModel, gameViewModel: GameViewModel)
                             selectedFriendList,
                             gameName.value,
                             selectedDifficult[difficult.value].toString(),
-                            selectedBudget[budget.value].toString(),
-                            "created",
-                            getCurrentDateTime()
+                            selectedBudget[budget.value].toString()
                         )
                     )
                 }) {
@@ -250,12 +252,4 @@ fun SmallFriendCard(friend: FriendResponse, selectedFriend: MutableList<Int>) {
             )
         }
     }
-}
-
-@SuppressLint("SimpleDateFormat")
-fun getCurrentDateTime(): String {
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-    val currentTime = Date()
-    return dateFormat.format(currentTime)
 }

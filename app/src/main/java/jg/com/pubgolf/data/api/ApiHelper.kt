@@ -2,6 +2,7 @@ package jg.com.pubgolf.data.api
 
 import jg.com.pubgolf.data.model.AuthModels.AuthRequest
 import jg.com.pubgolf.data.model.GameModels.NewGameRequest
+import jg.com.pubgolf.data.model.GameModels.User
 import jg.com.pubgolf.data.model.RegisterationModels.RegistrationRequest
 import jg.com.pubgolf.utils.SharedPreferencesManager
 import javax.inject.Inject
@@ -54,5 +55,11 @@ class ApiHelper @Inject constructor(
 
     suspend fun createGame(request: NewGameRequest) =
         apiService.createGame("Token " + sharedPreferencesManager.getVal("token"), request)
+
+    suspend fun startGame(gameId: Int) =
+        apiService.startGame("Token " + sharedPreferencesManager.getVal("token"), gameId)
+
+    suspend fun finishGame(request: List<User>, gameId: Int) =
+        apiService.finishGame("Token " + sharedPreferencesManager.getVal("token"), gameId, request)
 }
 
