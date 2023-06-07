@@ -130,6 +130,9 @@ fun GameCard(
                     selectedGame.value = Gson().toJson(game)
                     gameViewModel.startGame(game.id)
                 }
+                if (game.status == "finished"){
+
+                }
             },
     ) {
         Row(
@@ -173,7 +176,6 @@ fun GameCard(
                     fontSize = 16.sp
                 )
             }
-            //Можно впиндюрить кнопку какую-нибудь
         }
     }
 }
